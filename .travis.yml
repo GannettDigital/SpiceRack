@@ -1,0 +1,17 @@
+language: node_js
+node_js:
+  - "0.12"
+
+before_script:
+  - npm install mocha
+  - npm install -g istanbul
+  - npm install coveralls
+  - npm install mockery
+
+env:
+  - TEST_DIR=mustard
+#  - TEST_DIR=oregano
+#  - TEST_DIR=paprika
+
+script:
+  - cd $TEST_DIR && npm install && npm run coveralls
