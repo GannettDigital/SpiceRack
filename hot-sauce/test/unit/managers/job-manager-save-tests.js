@@ -30,7 +30,10 @@ describe('job-manager: save tests', function() {
         };
 
         var jobToSave = {
-            id: 1
+            id: 1,
+            schedule: {
+                cron: '* * * * *'
+            }
         };
 
         var mockCouchbase = {
@@ -50,7 +53,7 @@ describe('job-manager: save tests', function() {
                         },
                         upsert: function(id, job, callback) {
                             expect(job.locking).to.not.be.null;
-                            expect(job.schedule).to.not.be.null;
+                            expect(job.schedule.future_instances).to.not.be.null;
                             expect(job.lastModified).to.not.be.null;
                             done();
                         }
@@ -82,7 +85,10 @@ describe('job-manager: save tests', function() {
         };
 
         var jobToSave = {
-            id: 1
+            id: 1,
+            schedule: {
+                cron: '* * * * *'
+            }
         };
 
         var mockCouchbase = {
@@ -134,7 +140,10 @@ describe('job-manager: save tests', function() {
         };
 
         var jobToSave = {
-            id: 1
+            id: 1,
+            schedule: {
+                cron: '* * * * *'
+            }
         };
 
         var mockCouchbase = {
