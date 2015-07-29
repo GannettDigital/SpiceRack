@@ -3,11 +3,11 @@ module.exports = (function() {
     var http = require('http');
     var format = require('string-format');
     var bodyParser = require('body-parser');
-    var consign = require('consign');
     var fs = require('fs');
     var expressValidator = require('express-validator');
+    var Logger = require('logger');
 
-    function Mustard(config) {
+    function HotSauce(config) {
         if(!config || !config instanceof Object) {
             //TODO: custom error types
             //TODO: validate config
@@ -15,9 +15,10 @@ module.exports = (function() {
             throw new Error('config must be present and be an object');
         }
 
-        var mustard = {};
+        var hotSauce = {};
         var app = express();
         var server;
+        var logger = new Logger(config.logger);
 
         app.use(bodyParser.json()); // for parsing application/json
         app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -43,7 +44,7 @@ module.exports = (function() {
             }
         });
 
-        mustard.start = function() {
+        hotSauce.start = function() {
 
             initializeRouters(app, config);
             // DEVELOPER'S NOTE
@@ -54,13 +55,13 @@ module.exports = (function() {
 
             server = http.createServer(app);
             server.listen(config.port);
-            console.log(format('mustard started on port {0}', config.port));
+            logger.info(format('mustard started on port {0}', config.port));
         };
 
-        mustard.stop = function() {
+        hotSauce.stop = function() {
             if(server) {
                 server.close(function() {
-                    console.log('Server closed!');
+                    logger.info('Server Stopped!');
                 });
             } else {
                 //log warning
@@ -70,18 +71,18 @@ module.exports = (function() {
         function initializeRouters(app, config){
             var routersDirectory = fs.readdirSync('src/api/routers');
             routersDirectory.forEach(function(router){
-                console.log('including router: '+router);
+                logger.info('including router: '+router);
                 require('../api/routers/'+router).initialize(app, config);
             });
         }
 
         function errorHandler(err, req, res, next){
-            console.log(err);
+            logger.error('error in application', err);
             res.status(err.status || 500).json(err);
         }
 
-        return mustard;
+        return hotSauce;
     }
 
-    return Mustard;
+    return HotSauce;
 })();

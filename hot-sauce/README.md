@@ -1,4 +1,4 @@
-# mustard
+# Hot Sauce
 
 Couchbase Backed Job Scheduling Management API 
 
@@ -7,7 +7,7 @@ Couchbase Backed Job Scheduling Management API
 
 Installation
 ------------
-```npm install mustard```
+```npm install hot-sauce```
 
 Testing
 -------------
@@ -28,7 +28,7 @@ Usage
 This module is designed to be incorporated into an existing application with applicable start/stop commands
 
 ```javascript
-var Mustard = require('./Mustard/lib/mustard.js');
+var HotSauce = require('./hot-sauce/index.js');
 
 var config = {
     port: 3000,
@@ -41,7 +41,7 @@ var config = {
     }
 };
 
-var mustard = new Mustard(config);
+var hotSauce = new HotSauce(config);
 
-mustard.start();
+hotSauce.start();
 ```

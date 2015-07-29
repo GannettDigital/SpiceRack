@@ -18,6 +18,7 @@ describe('job-controller: upsert tests', function(){
     afterEach(function() {
         mockery.deregisterAll();
     });
+    //TODO: validation tests
 
     it('should call next() with status 400 when body fails validation', function(done){
         var id = 1;
@@ -51,7 +52,7 @@ describe('job-controller: upsert tests', function(){
             }
         };
 
-        mockery.registerMock('../../lib/job-manager.js', mockManager);
+        mockery.registerMock('../../managers/job-manager.js', mockManager);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -92,7 +93,7 @@ describe('job-controller: upsert tests', function(){
             }
         };
 
-        mockery.registerMock('../../lib/job-manager.js', mockManager);
+        mockery.registerMock('../../managers/job-manager.js', mockManager);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -131,7 +132,7 @@ describe('job-controller: upsert tests', function(){
             }
         };
 
-        mockery.registerMock('../../lib/job-manager.js', mockManager);
+        mockery.registerMock('../../managers/job-manager.js', mockManager);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});

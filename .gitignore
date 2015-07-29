@@ -30,4 +30,4 @@ node_modules
 .idea/*
 
 #local dev files
-^mustard.js$
+hot-sauce.js

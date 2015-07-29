@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (function () {
 
-    var JobsManager = require('../../lib/job-manager.js');
+    var JobsManager = require('../../managers/job-manager.js');
 
     var JobsController = function(config) {
         var self = {};
@@ -43,6 +43,9 @@ module.exports = (function () {
             req.checkBody('description', 'is required').notEmpty();
             req.checkBody('jobData', 'is required').notEmpty();
             req.checkBody('jobData', 'must be an object').isObject();
+            req.checkBody('schedule', 'is required').notEmpty();
+            req.checkBody('schedule', 'must be an object').isObject();
+            req.checkBody('schedule.cron', 'is required').notEmpty();
             req.checkBody('locking', 'may not be updated through the api').empty();
 
 
