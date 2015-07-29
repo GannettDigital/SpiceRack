@@ -1,5 +1,5 @@
 {
-  "name": "Mustard",
+  "name": "hot-sauce",
   "version": "0.0.1",
   "description": "Api Component to SpiceRack responsible for managing Scheduled Jobs in CouchBase",
   "main": "index.js",
