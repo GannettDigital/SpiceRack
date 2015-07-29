@@ -1,0 +1,1 @@
+module.exports = require('./src/lib/hot-sauce.js');

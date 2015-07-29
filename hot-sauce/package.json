@@ -1,0 +1,45 @@
+{
+  "name": "Mustard",
+  "version": "0.0.1",
+  "description": "Api Component to SpiceRack responsible for managing Scheduled Jobs in CouchBase",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run unit-test",
+    "unit-test": "mocha --recursive test/unit",
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha --include-all-sources --report lcovonly -- -R spec --recursive test/unit/",
+    "cover-html": "istanbul cover ./node_modules/mocha/bin/_mocha  --include-all-sources --report html -- -R spec --recursive test/unit/",
+    "coveralls": "npm run cover && ./node_modules/coveralls/bin/coveralls.js < coverage/lcov.info"
+  },
+  "repository": {
+    "type": "git",
+    "url": "SpiceRack"
+  },
+  "dependencies": {
+    "body-parser": "^1.13.2",
+    "callsite": "^1.0.0",
+    "couchbase": "^2.0.10",
+    "cron-parser": "^0.6.4",
+    "dateformat": "^1.0.11",
+    "ejs": "^2.3.3",
+    "express": "^4.13.1",
+    "express-validator": "^2.13.0",
+    "method-override": "^2.3.4",
+    "string-format": "^0.5.0",
+    "winston": "^1.0.1"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "coveralls": "^2.11.3",
+    "istanbul": "^0.3.17",
+    "mocha": "^2.2.5",
+    "mockery": "^1.4.0"
+  },
+  "keywords": [
+    "scheduling",
+    "nodejs",
+    "couchbase",
+    "distributed"
+  ],
+  "author": "Devansh Dhutia",
+  "license": "MIT"
+}
