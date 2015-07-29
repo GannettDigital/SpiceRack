@@ -69,7 +69,7 @@ module.exports = (function() {
         };
 
         function initializeRouters(app, config){
-            var routersDirectory = fs.readdirSync('src/api/routers');
+            var routersDirectory = fs.readdirSync(__dirname + '/../api/routers');
             routersDirectory.forEach(function(router){
                 logger.info('including router: '+router);
                 require('../api/routers/'+router).initialize(app, config);
