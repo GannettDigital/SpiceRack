@@ -9,7 +9,7 @@ before_script:
   - npm install mockery
 
 env:
-  - TEST_DIR=hot-sace
+  - TEST_DIR=hot-sauce
 #  - TEST_DIR=oregano
 #  - TEST_DIR=paprika
 
