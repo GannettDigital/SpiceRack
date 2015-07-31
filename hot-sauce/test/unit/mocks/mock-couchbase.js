@@ -8,6 +8,9 @@ module.exports.Cluster = function() {
     var Bucket = function() {
 
         var self = this;
+
+        self.get = function(){}
+
         //emit an error after a delay to allow handlers to register
         setTimeout(function(){
             self.emit('error', new Error());

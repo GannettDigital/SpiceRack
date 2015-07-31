@@ -6,7 +6,7 @@ module.exports = (function () {
 
     // to protect the application from itself, do not generate more than a few
     // when the current / end dates are too wide with a loose cron
-    var MAX_OCCURRENCES = 100;
+    var MAX_OCCURRENCES = 5;
     // Note for Job Manager
     // at 10 occurrences, the cleanup / maintenance activities must run every 10 or fewer seconds to ensure
     // no gaps in instances

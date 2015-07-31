@@ -61,7 +61,7 @@ describe('schedule-manager: get instances tests', function(){
         expect(results[2].toString()).to.eql(third.toString());
     });
 
-    it('should NOT return more than 100 occurrences even when the schedule & criteria permit it', function(){
+    it('should NOT return more than 5 occurrences even when the schedule & criteria permit it', function(){
         var mockLogger = function() {
             return {
             }
@@ -74,7 +74,7 @@ describe('schedule-manager: get instances tests', function(){
         //without any bounds, the endDate is infinite
         var results = manager.generateFutureInstances('@hourly');
 
-        expect(results).to.have.length(100);
+        expect(results).to.have.length(5);
     });
 
     it('should log error when the underlying cron-parser library throws an error', function(done){

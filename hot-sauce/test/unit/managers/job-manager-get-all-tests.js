@@ -46,6 +46,8 @@ describe('job-manager: getAllJobs tests', function() {
         var JobManager = require('../../../src/managers/job-manager.js');
         var manager = new JobManager(mockConfig);
 
+        manager.getJob(1, function(){});
+
     });
 
     it('should load the GetAllJobs view from the jobs bucket', function(done) {

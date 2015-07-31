@@ -21,12 +21,15 @@ module.exports = (function () {
         };
 
         self.getAvailable = function(req, res, next){
-            jobsManager.getAvailableJob(req.params.code, function(err, job){
+            jobsManager.findAvailableJob(req.params.code, function(err, job){
                 if(err){
-                    //no 404 here. If a job isn't available, an empty response should suffice
                     return next(err);
                 } else {
-                    res.json(job ? job : {});
+                    if(job){
+                        res.json(job);
+                    } else {
+                        res.status(404).json({message: 'available job not found'});
+                    }
                 }
             });
         };
