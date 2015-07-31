@@ -38,6 +38,10 @@ var config = {
             name: 'bucket_name',
             password: 'p@$$w0rd'
         }
+    },
+    logger: {
+        console: {enabled: true, options: {level: 'debug'}},
+        file: {enabled: false, options: {level: 'debug', filename: "hot-sauce.log"}}
     }
 };
 
@@ -45,3 +49,7 @@ var hotSauce = new HotSauce(config);
 
 hotSauce.start();
 ```
+
+Configuration
+-------------
+TODO

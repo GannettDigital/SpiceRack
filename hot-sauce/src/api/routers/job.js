@@ -7,6 +7,7 @@ module.exports = (function() {
         var jobsController = new JobsController(config);
 
         app.get('/jobs', jobsController.getAll);
+        app.get('/jobs/available/:code', jobsController.getAvailable);
         app.get('/jobs/:id', jobsController.getById);
         app.post('/jobs', jobsController.upsert);
     };

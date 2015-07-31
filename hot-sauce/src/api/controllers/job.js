@@ -20,6 +20,17 @@ module.exports = (function () {
             });
         };
 
+        self.getAvailable = function(req, res, next){
+            jobsManager.getAvailableJob(req.params.code, function(err, job){
+                if(err){
+                    //no 404 here. If a job isn't available, an empty response should suffice
+                    return next(err);
+                } else {
+                    res.json(job ? job : {});
+                }
+            });
+        };
+
         self.getById = function(req, res, next) {
            jobsManager.getJob(req.params.id, function(err, job) {
                 if(err) {

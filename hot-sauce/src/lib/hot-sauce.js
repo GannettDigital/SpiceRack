@@ -25,7 +25,7 @@ module.exports = (function() {
         app.use(expressValidator({
             customValidators: {
                 empty: function(value) {
-                    return value === null || value === undefined || value.trim() === '';
+                    return value === null || value === undefined;
                 },
                 isObject: function(value){
                     return value && value instanceof Object;
@@ -33,7 +33,7 @@ module.exports = (function() {
             }
         }));
 
-        app.all('*',function(req,res,next) {
+        app.all('/jobs/*',function(req,res,next) {
             if(req.query.apiKey) {
                 next();
             } else {
@@ -55,7 +55,7 @@ module.exports = (function() {
 
             server = http.createServer(app);
             server.listen(config.port);
-            logger.info(format('mustard started on port {0}', config.port));
+            logger.info(format('hot-sauce started on port {0}', config.port));
         };
 
         hotSauce.stop = function() {
@@ -77,7 +77,7 @@ module.exports = (function() {
         }
 
         function errorHandler(err, req, res, next){
-            logger.error('error in application', err);
+            logger.error(format('error in request: {0}', req.originalUrl), err);
             res.status(err.status || 500).json(err);
         }
 
