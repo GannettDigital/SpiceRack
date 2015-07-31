@@ -33,7 +33,7 @@ module.exports = (function() {
             }
         }));
 
-        app.all('/jobs/*',function(req,res,next) {
+        app.all('/jobs*',function(req,res,next) {
             if(req.query.apiKey) {
                 next();
             } else {
