@@ -30,4 +30,4 @@ node_modules
 .idea/*
 
 #local dev files
-hot-sauce.js
+hot-sauce*.js

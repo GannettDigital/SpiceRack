@@ -15,45 +15,35 @@ module.exports = (function() {
             throw new Error('config must be present and be an object');
         }
 
-        var hotSauce = {};
-        var app = express();
+        var hotSauce = {
+            app: express()
+        };
         var server;
         var logger = new Logger(config.logger);
 
-        app.use(bodyParser.json()); // for parsing application/json
-        app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-        app.use(expressValidator({
+        hotSauce.app.use(bodyParser.json()); // for parsing application/json
+        hotSauce.app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
+        hotSauce.app.use(expressValidator({
             customValidators: {
                 empty: function(value) {
                     return value === null || value === undefined;
                 },
-                isObject: function(value){
+                isObject: function(value) {
                     return value && value instanceof Object;
                 }
             }
         }));
+        initializeRouters(hotSauce.app, config);
+        // DEVELOPER'S NOTE
+        // since routes are also "middleware",
+        // error handler must be registered here as the LAST middleware
+        // DO NOT MOVE this line elsewhere unless you know what you are doing
+        hotSauce.app.use(errorHandler);
 
-        app.all('/jobs*',function(req,res,next) {
-            if(req.query.apiKey) {
-                next();
-            } else {
-                var error = new Error();
-                error.message = 'apiKey is required';
-                error.status = 400;
-                next(error); // 400 Not Authorized
-            }
-        });
+
 
         hotSauce.start = function() {
-
-            initializeRouters(app, config);
-            // DEVELOPER'S NOTE
-            // since routes are also "middleware",
-            // error handler must be registered here as the LAST middleware
-            // DO NOT MOVE this line elsewhere unless you know what you are doing
-            app.use(errorHandler);
-
-            server = http.createServer(app);
+            server = http.createServer(hotSauce.app);
             server.listen(config.port);
             logger.info(format('hot-sauce started on port {0}', config.port));
         };
@@ -64,19 +54,19 @@ module.exports = (function() {
                     logger.info('Server Stopped!');
                 });
             } else {
-                //log warning
+                logger.warn('no server to stop found');
             }
         };
 
-        function initializeRouters(app, config){
+        function initializeRouters(app, config) {
             var routersDirectory = fs.readdirSync(__dirname + '/../api/routers');
-            routersDirectory.forEach(function(router){
-                logger.info('including router: '+router);
-                require('../api/routers/'+router).initialize(app, config);
+            routersDirectory.forEach(function(router) {
+                logger.info('including router: ' + router);
+                require('../api/routers/' + router).initialize(app, config);
             });
         }
 
-        function errorHandler(err, req, res, next){
+        function errorHandler(err, req, res, next) {
             logger.error(format('error in request: {0}', req.originalUrl), err);
             //since JSON can't stringify errors, build error by hand :(
             res.status(err.status || 500).send({error: err.message ? err.message : err});
