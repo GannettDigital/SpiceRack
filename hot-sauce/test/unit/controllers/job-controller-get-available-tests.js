@@ -92,7 +92,7 @@ describe('job-controller: getAvailable tests', function(){
         };
         var mockManager = function(){
             return {
-                findAvailableJob: function(codes, callback){
+                findAvailableJob: function(codes, caller, callback){
                     callback(null, job);
                 }
             };
@@ -129,7 +129,7 @@ describe('job-controller: getAvailable tests', function(){
         var error = new Error('uh oh');
         var mockManager = function(){
             return {
-                findAvailableJob: function(codes, callback){
+                findAvailableJob: function(codes, caller, callback){
                     callback(error, null);
                 }
             };
@@ -166,7 +166,7 @@ describe('job-controller: getAvailable tests', function(){
         var expectedCodes = ['code1', 'code2'];
         var mockManager = function(){
             return {
-                findAvailableJob: function(codes, callback){
+                findAvailableJob: function(codes, caller, callback){
                     callback(null);
                 }
             };
