@@ -8,6 +8,7 @@ module.exports = (function() {
 
         app.get('/jobs', jobsController.getAll);
         app.get('/jobs/available', jobsController.getAvailable);
+        app.get('/jobs/:id/unlock', jobsController.unlock);
         app.get('/jobs/:id', jobsController.getById);
         app.post('/jobs', jobsController.upsert);
     };

@@ -22,6 +22,7 @@ module.exports = (function () {
             QUERY_AVAILABLE_JOBS: 'query-available-jobs',
             GET_AND_LOCK: 'get-lock-job',
             LOCK_JOB: 'lock-job',
+            UNLOCK_JOB: 'unlock-job',
             HANDLE_RESPONSE: 'handle-response'
         };
 
@@ -40,9 +41,9 @@ module.exports = (function () {
             });
         };
 
-        manager.findAvailableJob = function(jobCodes, afterGet) {
+        manager.findAvailableJob = function(jobCodes, caller, afterGet) {
             var bucket = getOpenedBucket();
-            eventHandler.sendEvent(jobEvents.QUERY_AVAILABLE_JOBS, bucket, jobCodes, afterGet);
+            eventHandler.sendEvent(jobEvents.QUERY_AVAILABLE_JOBS, bucket, jobCodes, caller, afterGet);
         };
 
         manager.getJob = function(id, afterGet) {
@@ -63,6 +64,17 @@ module.exports = (function () {
             });
         };
 
+        manager.unlock = function(id, caller, afterUnlock){
+            var bucket = getOpenedBucket();
+            bucket.getAndLock(id, {lockTime: 30}, function(err, result){
+               if(err){
+                   afterUnlock(err, null);
+               } else {
+                   eventHandler.sendEvent(jobEvents.UNLOCK_JOB, result, bucket, caller, afterUnlock);
+               }
+            });
+        };
+
         var getOpenedBucket = function(){
             var bucket = couchbaseCluster.openBucket(config.couchbase.bucket.name, config.couchbase.bucket.password);
             bucket.on('error', function(err) {
@@ -77,8 +89,7 @@ module.exports = (function () {
         };
 
         function addMetadataToJob(job){
-            job.locking = {};
-            job.lastModified = new Date();
+            job.locking = job.locking || {};
 
             //add instance information
             var base = new Date();
@@ -98,7 +109,7 @@ module.exports = (function () {
             return job;
         }
 
-        eventHandler.watchEvent(jobEvents.QUERY_AVAILABLE_JOBS, function(bucket, jobCodes, afterGet){
+        eventHandler.watchEvent(jobEvents.QUERY_AVAILABLE_JOBS, function(bucket, jobCodes, caller, afterGet){
             var now = new Date();
             var end = new Date(now);
             end.setUTCSeconds(now.getUTCSeconds() + 5);
@@ -116,14 +127,14 @@ module.exports = (function () {
             logger.info(format('job view query: {0}', JSON.stringify(query)));
             bucket.query(query, function(err, results) {
                 if(!err) {
-                    eventHandler.sendEvent(jobEvents.GET_AND_LOCK, results, jobCodes, bucket, afterGet);
+                    eventHandler.sendEvent(jobEvents.GET_AND_LOCK, results, jobCodes, caller, bucket, afterGet);
                 } else {
                     eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err);
                 }
             });
         });
 
-        eventHandler.watchEvent(jobEvents.GET_AND_LOCK, function(results, jobCodes, bucket, afterGet){
+        eventHandler.watchEvent(jobEvents.GET_AND_LOCK, function(results, jobCodes, caller, bucket, afterGet){
             if(results.length > 0) {
                 var jobId;
                 logger.info(jobCodes);
@@ -146,7 +157,7 @@ module.exports = (function () {
                     if(err){
                         eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err);
                     }
-                    eventHandler.sendEvent(jobEvents.LOCK_JOB, result, bucket, afterGet);
+                    eventHandler.sendEvent(jobEvents.LOCK_JOB, result, bucket, caller, afterGet);
                 });
             } else {
                 logger.info('no eligible jobs found');
@@ -154,7 +165,7 @@ module.exports = (function () {
             }
         });
 
-        eventHandler.watchEvent(jobEvents.LOCK_JOB, function(result, bucket, afterGet){
+        eventHandler.watchEvent(jobEvents.LOCK_JOB, function(result, bucket, caller, afterGet){
             //lock info to be used to unlock the job
             var cas = result.cas;
             var job = result.value;
@@ -163,12 +174,34 @@ module.exports = (function () {
             lockInfo.locked = true;
             lockInfo.lockedOn = new Date();
 
-            lockInfo.lockedBy = 'someone';
+            lockInfo.lockedBy = caller;
 
             job.locking = lockInfo;
+            job.lastModified = new Date();
             bucket.upsert(job.id, job, {cas: cas}, function(err){
                 bucket.unlock(job.id, cas, function(){
-                    emitter.emit(jobEvents.HANDLE_RESPONSE, afterGet, err, job);
+                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err, job);
+                });
+            });
+        });
+
+        eventHandler.watchEvent(jobEvents.UNLOCK_JOB, function(result, bucket, caller, afterUnlock){
+            var cas = result.cas;
+            var job = result.value;
+
+            var lockInfo = job.locking || {};
+
+            lockInfo.locked = false;
+            delete lockInfo.lockedOn;
+            delete lockInfo.lockedBy;
+            lockInfo.unlockedBy = caller;
+
+            job.locking = lockInfo;
+            job.lastModified = new Date();
+
+            bucket.upsert(job.id, job, {cas: cas}, function(err){
+                bucket.unlock(job.id, cas, function(){
+                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterUnlock, err, job);
                 });
             });
         });

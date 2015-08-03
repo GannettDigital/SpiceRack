@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (function () {
     var events = require('events');
 
@@ -13,7 +15,12 @@ module.exports = (function () {
         };
 
         self.sendEvent = function(eventType){
-            emitter.emit.apply(this, arguments);
+            console.log(arguments);
+            if(!emitter.emit.apply(emitter, arguments)){
+                console.log('uh oh, noone listening to '+arguments[0]);
+            };
+
+            //console.log(emitter.emit(arguments[0], arguments));
         };
 
         return self;

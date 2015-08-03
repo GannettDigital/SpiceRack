@@ -20,8 +20,36 @@ module.exports = (function () {
             });
         };
 
+        self.unlock = function(req, res, next){
+            req.checkParams('id', 'is required').notEmpty();
+            req.checkQuery('caller', 'is required').notEmpty();
+            var validationErrors = req.validationErrors();
+            if (validationErrors) {
+                var error = new Error();
+                error.status = 400;
+                error.errors = validationErrors;
+                return next(error);
+            }
+
+            jobsManager.unlock(req.params.id, req.query.caller, function(err, job){
+                if(err){
+                    return next(err);
+                } else {
+                    if(job){
+                        res.json(job);
+                    } else {
+                        res.status(404).json({message: 'Job not found'});
+                    }
+                }
+            });
+
+
+        };
+
+
         self.getAvailable = function(req, res, next){
             req.checkQuery('codes', 'is required').notEmpty();
+            req.checkQuery('caller', 'is required').notEmpty();
             var validationErrors = req.validationErrors();
             if (validationErrors) {
                 var error = new Error();
@@ -32,7 +60,7 @@ module.exports = (function () {
 
             var parsedCodes = req.query.codes.split(',');
 
-            jobsManager.findAvailableJob(parsedCodes, function(err, job){
+            jobsManager.findAvailableJob(parsedCodes, req.query.caller, function(err, job){
                 if(err){
                     return next(err);
                 } else {
@@ -60,7 +88,6 @@ module.exports = (function () {
 
         self.upsert = function(req, res, next){
             //validation
-            //TODO: move to module
 
             req.checkBody('id', 'is required').notEmpty();
             req.checkBody('name', 'is required').notEmpty();
