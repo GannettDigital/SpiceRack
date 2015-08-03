@@ -6,7 +6,7 @@ module.exports = (function () {
     var ScheduleManager = require('./schedule-manager.js');
     var format = require('string-format');
     var ViewQuery = couchbase.ViewQuery;
-    var events = require('events');
+    var EventHandler = require('../lib/event-handler.js');
 
     //control how far out to generate occurrences.
     //TODO: this will be a problem for annual tasks
@@ -17,7 +17,7 @@ module.exports = (function () {
         var manager = {};
         var couchbaseCluster = new couchbase.Cluster(config.couchbase.cluster);
         var scheduleManager = new ScheduleManager(config);
-        var emitter = new events.EventEmitter();
+        var eventHandler = new EventHandler();
         var jobEvents = {
             QUERY_AVAILABLE_JOBS: 'query-available-jobs',
             GET_AND_LOCK: 'get-lock-job',
@@ -40,9 +40,9 @@ module.exports = (function () {
             });
         };
 
-        manager.findAvailableJob = function(jobCode, afterGet) {
+        manager.findAvailableJob = function(jobCodes, afterGet) {
             var bucket = getOpenedBucket();
-            emitter.emit(jobEvents.QUERY_AVAILABLE_JOBS, bucket, jobCode, afterGet);
+            eventHandler.sendEvent(jobEvents.QUERY_AVAILABLE_JOBS, bucket, jobCodes, afterGet);
         };
 
         manager.getJob = function(id, afterGet) {
@@ -98,44 +98,63 @@ module.exports = (function () {
             return job;
         }
 
-        emitter.on(jobEvents.QUERY_AVAILABLE_JOBS, function(bucket, jobCode, afterGet){
-            //TODO: multiples!
+        eventHandler.watchEvent(jobEvents.QUERY_AVAILABLE_JOBS, function(bucket, jobCodes, afterGet){
             var now = new Date();
-            var startKey = [jobCode, now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getMinutes()];
-            var endKey = {};
+            var end = new Date(now);
+            end.setUTCSeconds(now.getUTCSeconds() + 5);
+            //margin of error is 5s
+
+            //because javascript getMonth() is 0 based, +1 the month
+            var startKey = [now.getUTCFullYear(), now.getUTCMonth()+1, now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()];
+            var endKey =   [end.getUTCFullYear(), end.getUTCMonth()+1, end.getUTCDate(), end.getUTCHours(), end.getUTCMinutes(), end.getUTCSeconds()];
+
             var query = ViewQuery
                 .from('jobs', 'GetJobIfAvailable')
                 .range(startKey, endKey)
-                .limit(10)
+                .limit(100)
                 .stale(ViewQuery.Update.BEFORE);
             logger.info(format('job view query: {0}', JSON.stringify(query)));
             bucket.query(query, function(err, results) {
                 if(!err) {
-                    emitter.emit(jobEvents.GET_AND_LOCK, results, bucket, afterGet);
+                    eventHandler.sendEvent(jobEvents.GET_AND_LOCK, results, jobCodes, bucket, afterGet);
                 } else {
-                    emitter.emit(jobEvents.HANDLE_RESPONSE, afterGet, err);
+                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err);
                 }
             });
         });
 
-        emitter.on(jobEvents.GET_AND_LOCK, function(results, bucket, afterGet){
+        eventHandler.watchEvent(jobEvents.GET_AND_LOCK, function(results, jobCodes, bucket, afterGet){
             if(results.length > 0) {
-                // concurrent requests may get same list & 1 will lock first. 2nd will fail
-                // should retry for next job?
-                var jobId = results[0].id;
-                logger.info(JSON.stringify(results));
+                var jobId;
+                logger.info(jobCodes);
+                for(var i=0; i<jobCodes.length; i++) {
+                    for(var j=0; j<results.length; j++) {
+                        logger.info(JSON.stringify(results[j]));
+                        if(results[j].value.toUpperCase() === jobCodes[i].toUpperCase()) {
+                            jobId = results[j].id;
+                            break;
+                        }
+                    }
+                }
+                if(!jobId){
+                    logger.warn('unable to find matching job in results');
+                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet);
+                    return;
+                }
+
                 bucket.getAndLock(jobId, {lockTime: 30}, function(err, result){
                     if(err){
-                        emitter.emit(jobEvents.HANDLE_RESPONSE, afterGet, err);
+                        eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err);
                     }
-                    emitter.emit(jobEvents.LOCK_JOB, result, bucket, afterGet);
+                    eventHandler.sendEvent(jobEvents.LOCK_JOB, result, bucket, afterGet);
                 });
             } else {
-                emitter.emit(jobEvents.HANDLE_RESPONSE, afterGet);
+                logger.info('no eligible jobs found');
+                eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet);
             }
         });
 
-        emitter.on(jobEvents.LOCK_JOB, function(result, bucket, afterGet){
+        eventHandler.watchEvent(jobEvents.LOCK_JOB, function(result, bucket, afterGet){
             //lock info to be used to unlock the job
             var cas = result.cas;
             var job = result.value;
@@ -154,7 +173,7 @@ module.exports = (function () {
             });
         });
 
-        emitter.on(jobEvents.HANDLE_RESPONSE, function(afterGet, err, job){
+        eventHandler.watchEvent(jobEvents.HANDLE_RESPONSE, function(afterGet, err, job){
             afterGet(err, job);
         });
 

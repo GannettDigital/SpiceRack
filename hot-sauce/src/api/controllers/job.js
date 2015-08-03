@@ -21,7 +21,18 @@ module.exports = (function () {
         };
 
         self.getAvailable = function(req, res, next){
-            jobsManager.findAvailableJob(req.params.code, function(err, job){
+            req.checkQuery('codes', 'is required').notEmpty();
+            var validationErrors = req.validationErrors();
+            if (validationErrors) {
+                var error = new Error();
+                error.status = 400;
+                error.errors = validationErrors;
+                return next(error);
+            }
+
+            var parsedCodes = req.query.codes.split(',');
+
+            jobsManager.findAvailableJob(parsedCodes, function(err, job){
                 if(err){
                     return next(err);
                 } else {

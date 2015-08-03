@@ -59,7 +59,8 @@ module.exports = function(config) {
 
         var now = new Date();
         //TODO: if clustering is implemented, process.pid should be replaced with worker.id or the equivalent thread id
-        var formattedMessage = format(logMessageFormat, dateFormat(now, dateTimeFormat), process.pid, transactionIdLog, stack[1].getFileName(), messageToLog, stack[1].getLineNumber());
+        var stackDepth = 1;
+        var formattedMessage = format(logMessageFormat, dateFormat(now, dateTimeFormat), process.pid, transactionIdLog, stack[stackDepth].getFileName(), messageToLog, stack[stackDepth].getLineNumber());
 
         if(args) {
             logger.log(level.toLowerCase(), formattedMessage, args);

@@ -73,6 +73,77 @@ describe('job-manager: save tests', function() {
         });
     });
 
+    it('should log warning when future instances don\'t generate', function(done) {
+        var mockConfig = {
+            couchbase: {
+                cluster: [],
+                bucket: {
+                    name: 'name',
+                    password: '123'
+                }
+            }
+        };
+
+        var jobToSave = {
+            id: 1,
+            schedule: {
+                cron: '* * * * *'
+            }
+        };
+
+        var mockScheduleManager = function() {
+            var self = {};
+            self.generateFutureInstances = function(){
+                return [];
+            };
+
+            return self;
+        };
+
+        var mockLogger = function(){
+            return {
+                warn: function(message){
+                    expect(message).to.eql('* * * * * generated 0 occurrences.');
+                    done();
+                }
+            }
+        };
+
+        var mockCouchbase = {
+            ViewQuery: {
+                from: function(bucket, view) {
+                }
+            },
+            Cluster: function() {
+                var self = {};
+
+                self.openBucket = function() {
+                    return {
+                        on: function() {
+                        },
+                        get: function(id, callback) {
+                            callback(null, {});
+                        },
+                        upsert: function(id, job, callback) {
+                        }
+                    };
+                };
+
+                return self;
+            }
+        };
+
+        mockery.registerMock('../lib/logger.js', mockLogger);
+        mockery.registerMock('./schedule-manager.js', mockScheduleManager);
+        mockery.registerMock('couchbase', mockCouchbase);
+
+        var JobManager = require('../../../src/managers/job-manager.js');
+        var manager = new JobManager(mockConfig);
+
+        manager.save(jobToSave, function(err, result) {
+        });
+    });
+
     it('should call afterSave with error when couchbase upsert fails', function(done) {
         var mockConfig = {
             couchbase: {

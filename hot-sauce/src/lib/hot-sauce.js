@@ -79,7 +79,7 @@ module.exports = (function() {
         function errorHandler(err, req, res, next){
             logger.error(format('error in request: {0}', req.originalUrl), err);
             //since JSON can't stringify errors, build error by hand :(
-            res.status(err.status || 500).send({error: err.message});
+            res.status(err.status || 500).send({error: err.message ? err.message : err});
         }
 
         return hotSauce;
