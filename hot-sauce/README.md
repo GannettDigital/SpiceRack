@@ -110,3 +110,37 @@ Configuration
     }
 };
 ```
+*Couchbase Configuration* 
+The application requires the existence of 2 views in the bucket
+
+# GetAllJobs
+```javascript
+function (doc, meta) {
+  emit(meta.id, doc);
+}
+```
+
+# GetJobIfAvailable
+```javascript
+function (doc, meta) {
+  if(doc.locking && doc.locking.locked != true){
+    if(doc.schedule && doc.schedule.future_instances.length > 0){
+    //only find unlocked jobs
+      var instances = doc.schedule.future_instances;
+      for(var i=0; i<instances.length; i++){
+        var key = dateToArray(instances[i]);
+	emit(key, doc.code);
+      }
+    } 
+  }
+}
+```
+
+Routes
+-------------
+GET `/jobs` - index of all jobs stored in couchbase
+GET `/jobs/:id` - detail on specific job
+GET `/jobs/available?codes=code1,code2,code3&caller=someone - given input codes, get & lock an available job by `someone`
+GET `/jobs/:id/unlock?caller=someone` - unlocks a locked job
+POST `/jobs` - create/upload a job
+
