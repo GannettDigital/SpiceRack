@@ -6,16 +6,12 @@ Couchbase Backed Job Scheduling Management API
 [![Coverage Status](https://coveralls.io/repos/GannettDigital/SpiceRack/badge.svg?branch=master&service=github)](https://coveralls.io/github/GannettDigital/SpiceRack?branch=master)
 
 ## Installation
-------------
 ```npm install hot-sauce```
 
 ## Testing
--------------
 ```npm run test```
  
 ## Code Coverage
--------------
-
 Code Coverage provided by Istanbul with hooks for coveralls.  To see coverage report run
 
 ```
@@ -23,8 +19,6 @@ npm run cover
 ```
 
 ## Usage - built-in start/stop methods
--------------
-
 This module can be incorporated into an existing application with applicable start/stop commands
 
 ```javascript
@@ -51,8 +45,6 @@ hotSauce.start();
 ```
 
 ## Usage - subapp in existing app
--------------
-
 This module can be incorporated into an existing application as a sub-app
 ```javascript
 var HotSauce = require('./hot-sauce/index.js');
@@ -93,7 +85,6 @@ server.listen(config.port);
 ```
 
 ## Configuration
--------------
 ```
 {
     port: 3000, //port for server to listen on
@@ -137,7 +128,6 @@ function (doc, meta) {
 ```
 
 ## Routes
--------------
 * GET `/jobs` 
 Index of all jobs stored in couchbase
 ** Example Response
@@ -174,7 +164,6 @@ Unlocks a locked job
 
 * POST `/jobs`
 Create/Upload a job
-
 ** Example POST request
 ```javascript
 {
