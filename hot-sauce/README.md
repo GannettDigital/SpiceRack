@@ -28,7 +28,7 @@ Usage - built-in start/stop methods
 This module can be incorporated into an existing application with applicable start/stop commands
 
 ```javascript
-var HotSauce = require('./hot-sauce/index.js');
+var HotSauce = require('hot-sauce').Application;
 
 var config = {
     port: 3000,
