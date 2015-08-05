@@ -1,0 +1,41 @@
+{
+  "name": "ajwain",
+  "version": "0.0.1",
+  "description": "SDK to provide scheduled job execution functionality to node applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run unit-test",
+    "unit-test": "mocha --recursive test/unit",
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha --include-all-sources --report lcovonly -- -R spec --recursive test/unit/",
+    "cover-html": "istanbul cover ./node_modules/mocha/bin/_mocha  --include-all-sources --report html -- -R spec --recursive test/unit/",
+    "coveralls": "npm run cover && ./node_modules/coveralls/bin/coveralls.js < coverage/lcov.info"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GannettDigital/SpiceRack.git"
+  },
+  "keywords": [
+    "scheduling",
+    "hot-sauce",
+    "spice-rack",
+    "scheduling",
+    "sdk",
+    "job"
+  ],
+  "author": "Devansh Dhutia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GannettDigital/SpiceRack/issues"
+  },
+  "homepage": "https://github.com/GannettDigital/SpiceRack/tree/master/ajwain",
+  "dependencies": {
+    "hot-sauce": "^0.0.9",
+    "request": "^2.60.0",
+    "string-format": "^0.5.0"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5",
+    "mockery": "^1.4.0"
+  }
+}

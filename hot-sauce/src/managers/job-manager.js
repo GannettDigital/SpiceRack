@@ -17,7 +17,7 @@ module.exports = (function () {
         var manager = {};
         var couchbaseCluster = new couchbase.Cluster(config.couchbase.cluster);
         var scheduleManager = new ScheduleManager(config);
-        var eventHandler = new EventHandler();
+        var eventHandler = new EventHandler(config);
         var jobEvents = {
             QUERY_AVAILABLE_JOBS: 'query-available-jobs',
             GET_AND_LOCK: 'get-lock-job',
@@ -111,6 +111,8 @@ module.exports = (function () {
 
         eventHandler.watchEvent(jobEvents.QUERY_AVAILABLE_JOBS, function(bucket, jobCodes, caller, afterGet){
             var now = new Date();
+            now.setMilliseconds(0);
+
             var end = new Date(now);
             end.setUTCSeconds(now.getUTCSeconds() + 5);
             //margin of error is 5s
@@ -124,17 +126,28 @@ module.exports = (function () {
                 .range(startKey, endKey)
                 .limit(100)
                 .stale(ViewQuery.Update.BEFORE);
-            logger.info(format('job view query: {0}', JSON.stringify(query)));
+
             bucket.query(query, function(err, results) {
                 if(!err) {
-                    eventHandler.sendEvent(jobEvents.GET_AND_LOCK, results, jobCodes, caller, bucket, afterGet);
+                    var options = {
+                        results: results,
+                        jobCodes: jobCodes,
+                        caller: caller,
+                        bucket: bucket,
+                        callback: afterGet,
+                        baseDate: now
+                    };
+                    eventHandler.sendEvent(jobEvents.GET_AND_LOCK, options);
                 } else {
                     eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err);
                 }
             });
         });
 
-        eventHandler.watchEvent(jobEvents.GET_AND_LOCK, function(results, jobCodes, caller, bucket, afterGet){
+        eventHandler.watchEvent(jobEvents.GET_AND_LOCK, function(options){
+            var results = options.results;
+            var jobCodes = options.jobCodes;
+
             if(results.length > 0) {
                 var jobId;
                 logger.info(jobCodes);
@@ -153,19 +166,23 @@ module.exports = (function () {
                     return;
                 }
 
-                bucket.getAndLock(jobId, {lockTime: 30}, function(err, result){
+                options.bucket.getAndLock(jobId, {lockTime: 30}, function(err, result){
                     if(err){
-                        eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err);
+                        eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, options.callback, err);
+                    } else {
+                        options.result = result;
+                        eventHandler.sendEvent(jobEvents.LOCK_JOB, options);
                     }
-                    eventHandler.sendEvent(jobEvents.LOCK_JOB, result, bucket, caller, afterGet);
                 });
             } else {
                 logger.info('no eligible jobs found');
-                eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet);
+                eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, options.callback);
             }
         });
 
-        eventHandler.watchEvent(jobEvents.LOCK_JOB, function(result, bucket, caller, afterGet){
+        eventHandler.watchEvent(jobEvents.LOCK_JOB, function(options){
+            var result = options.result;
+            var bucket = options.bucket;
             //lock info to be used to unlock the job
             var cas = result.cas;
             var job = result.value;
@@ -174,13 +191,22 @@ module.exports = (function () {
             lockInfo.locked = true;
             lockInfo.lockedOn = new Date();
 
-            lockInfo.lockedBy = caller;
+            lockInfo.lockedBy = options.caller;
 
             job.locking = lockInfo;
             job.lastModified = new Date();
+
             bucket.upsert(job.id, job, {cas: cas}, function(err){
                 bucket.unlock(job.id, cas, function(){
-                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet, err, job);
+                    for(var i=0; i<job.schedule.future_instances.length; i++){
+                        var date = new Date(job.schedule.future_instances[i]);
+
+                        if(date.getTime() >= options.baseDate.getTime()){
+                            job.triggeringOccurrence = date;
+                            break;
+                        }
+                    }
+                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, options.callback, err, job);
                 });
             });
         });

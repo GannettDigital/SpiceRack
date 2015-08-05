@@ -2,9 +2,11 @@
 
 module.exports = (function () {
     var events = require('events');
+    var Logger = require('./logger.js');
 
-    var EventHandler = function(){
+    var EventHandler = function(config){
         var self = {};
+        var logger = new Logger(config.logger);
         var emitter = new events.EventEmitter();
 
         self.watchEvent = function(eventType, eventHandler){
@@ -15,12 +17,12 @@ module.exports = (function () {
         };
 
         self.sendEvent = function(eventType){
-            console.log(arguments);
-            if(!emitter.emit.apply(emitter, arguments)){
-                console.log('uh oh, noone listening to '+arguments[0]);
-            };
 
-            //console.log(emitter.emit(arguments[0], arguments));
+            if(emitter.listeners(eventType).length == 0){
+                logger.warn('No handler registered for: ' + eventType);
+            } else {
+                emitter.emit.apply(emitter, arguments)
+            }
         };
 
         return self;
