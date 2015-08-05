@@ -5,26 +5,20 @@ Couchbase Backed Job Scheduling Management API
 [![Build Status](https://travis-ci.org/GannettDigital/SpiceRack.svg?branch=master)](https://travis-ci.org/GannettDigital/SpiceRack)
 [![Coverage Status](https://coveralls.io/repos/GannettDigital/SpiceRack/badge.svg?branch=master&service=github)](https://coveralls.io/github/GannettDigital/SpiceRack?branch=master)
 
-Installation
-------------
+## Installation
 ```npm install hot-sauce```
 
-Testing
--------------
+## Testing
 ```npm run test```
  
-Code Coverage
--------------
-
+## Code Coverage
 Code Coverage provided by Istanbul with hooks for coveralls.  To see coverage report run
 
 ```
 npm run cover
 ```
 
-Usage - built-in start/stop methods
--------------
-
+## Usage - built-in start/stop methods
 This module can be incorporated into an existing application with applicable start/stop commands
 
 ```javascript
@@ -50,9 +44,7 @@ var hotSauce = new HotSauce(config);
 hotSauce.start();
 ```
 
-Usage - subapp in existing app
--------------
-
+## Usage - subapp in existing app
 This module can be incorporated into an existing application as a sub-app
 ```javascript
 var HotSauce = require('./hot-sauce/index.js');
@@ -92,8 +84,7 @@ var server = http.createServer(app);
 server.listen(config.port);
 ```
 
-Configuration
--------------
+## Configuration
 ```
 {
     port: 3000, //port for server to listen on
@@ -110,17 +101,17 @@ Configuration
     }
 };
 ```
-*Couchbase Configuration* 
+### Couchbase Configuration
 The application requires the existence of 2 views in the bucket
 
-# GetAllJobs
+#### GetAllJobs
 ```javascript
 function (doc, meta) {
   emit(meta.id, doc);
 }
 ```
 
-# GetJobIfAvailable
+#### GetJobIfAvailable
 ```javascript
 function (doc, meta) {
   if(doc.locking && doc.locking.locked != true){
@@ -136,11 +127,55 @@ function (doc, meta) {
 }
 ```
 
-Routes
--------------
-GET `/jobs` - index of all jobs stored in couchbase
-GET `/jobs/:id` - detail on specific job
-GET `/jobs/available?codes=code1,code2,code3&caller=someone - given input codes, get & lock an available job by `someone`
-GET `/jobs/:id/unlock?caller=someone` - unlocks a locked job
-POST `/jobs` - create/upload a job
+## Routes
+* GET `/jobs` 
+Index of all jobs stored in couchbase
+** Example Response
+```javascript
+{
+    "id": "52",
+    "name": "job",
+    "code": "code_52",
+    "description": "desc",
+    "jobData": {},
+    "schedule": {
+        "cron": "*/12 52 * * * *",
+        "future_instances": [
+            "2015-08-03T19:52:00.000Z",
+            "2015-08-03T19:52:12.000Z",
+            "2015-08-03T19:52:24.000Z",
+            "2015-08-03T19:52:36.000Z",
+            "2015-08-03T19:52:48.000Z"
+        ]
+    },
+    "locking": {},
+    "lastModified": "2015-08-03T19:06:55.502Z"
+}
+```
+
+* GET `/jobs/:id` 
+Detail on specific job
+
+* GET `/jobs/available?codes=code1,code2,code3&caller=someone`
+Given input codes, get & lock an available job by `someone`. Margin of error for the query is 5 seconds i.e it is feasible to get a job scheduled to run upto 5 seconds in the future. 
+
+* GET `/jobs/:id/unlock?caller=someone`  
+Unlocks a locked job
+
+* POST `/jobs`
+Create/Upload a job
+** Example POST request
+```javascript
+{
+    "id": "52",
+    "name": "job",
+    "code": "every52nd",
+    "description": "desc",
+    "jobData": {},
+    "schedule": {
+        "cron": "*/12 52 * * * *"
+    },
+    "locking": {}
+}
+```
 
