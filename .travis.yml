@@ -10,7 +10,7 @@ before_script:
 
 env:
   - TEST_DIR=hot-sauce
-#  - TEST_DIR=oregano
+  - TEST_DIR=ajwain
 #  - TEST_DIR=paprika
 
 script:
