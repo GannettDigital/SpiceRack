@@ -244,7 +244,7 @@ describe('job-controller: getAvailable tests', function(){
         });
     });
 
-    it.only('should trigger the GET_AND_LOCK event on finding a job', function(done){
+    it('should trigger the GET_AND_LOCK event on finding a job', function(done){
         var mockConfig = {
             couchbase: {
                 cluster: [],
