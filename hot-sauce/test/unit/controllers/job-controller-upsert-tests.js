@@ -18,7 +18,6 @@ describe('job-controller: upsert tests', function(){
     afterEach(function() {
         mockery.deregisterAll();
     });
-    //TODO: validation tests
 
     it('should call next() with status 400 when body fails validation', function(done){
         var id = 1;

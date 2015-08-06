@@ -29,7 +29,7 @@ describe('job-manager: getAllJobs tests', function() {
             }
         };
 
-        var mockCouchbase = require('../mocks/mock-couchbase.js');
+        var mockCouchbase = require('../mocks/mock-couchbase-error.js');
         mockery.registerMock('couchbase', mockCouchbase);
 
         var mockLogger = function() {
@@ -37,6 +37,37 @@ describe('job-manager: getAllJobs tests', function() {
                 error: function(message, err) {
                     expect(message).to.eql('Bucket Error: ');
                     expect(err).to.not.be.null;
+                    done();
+                }
+            }
+        };
+        mockery.registerMock('../lib/logger.js', mockLogger);
+
+        var JobManager = require('../../../src/managers/job-manager.js');
+        var manager = new JobManager(mockConfig);
+
+        manager.getJob(1, function(){});
+
+    });
+
+    it('should log info message when coucbase connects successfully', function(done){
+        var mockConfig = {
+            couchbase: {
+                cluster: [],
+                bucket: {
+                    name: 'name',
+                    password: '123'
+                }
+            }
+        };
+
+        var mockCouchbase = require('../mocks/mock-couchbase.js');
+        mockery.registerMock('couchbase', mockCouchbase);
+
+        var mockLogger = function() {
+            return {
+                info: function(message) {
+                    expect(message).to.eql('Connected to bucket');
                     done();
                 }
             }
