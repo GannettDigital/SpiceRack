@@ -1,7 +1,7 @@
 describe('logger: logging tests', function() {
     var assert = require('assert');
     var expect = require('chai').expect;
-    var Logger = require('../../../src/lib/logger.js');
+    var Logger = require('../../src/logger.js');
     var testConfig = {
         console: {enabled: true},
         file: {enabled: false}
