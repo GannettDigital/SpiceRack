@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (function () {
-    var Logger = require('../lib/logger.js');
+    var Logger = require('salt-pepper').Logger;
     var couchbase = require('couchbase');
     var ScheduleManager = require('./schedule-manager.js');
     var format = require('string-format');

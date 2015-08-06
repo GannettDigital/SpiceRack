@@ -100,11 +100,13 @@ describe('job-manager: save tests', function() {
             return self;
         };
 
-        var mockLogger = function(){
-            return {
-                warn: function(message){
-                    expect(message).to.eql('* * * * * generated 0 occurrences.');
-                    done();
+        var mockLogger = {
+            Logger: function() {
+                return {
+                    warn: function(message) {
+                        expect(message).to.eql('* * * * * generated 0 occurrences.');
+                        done();
+                    }
                 }
             }
         };
@@ -133,7 +135,7 @@ describe('job-manager: save tests', function() {
             }
         };
 
-        mockery.registerMock('../lib/logger.js', mockLogger);
+        mockery.registerMock('salt-pepper', mockLogger);
         mockery.registerMock('./schedule-manager.js', mockScheduleManager);
         mockery.registerMock('couchbase', mockCouchbase);
 

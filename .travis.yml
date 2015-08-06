@@ -11,7 +11,7 @@ before_script:
 env:
   - TEST_DIR=hot-sauce
   - TEST_DIR=ajwain
-#  - TEST_DIR=paprika
+  - TEST_DIR=salt-pepper
 
 script:
   - cd $TEST_DIR && npm install && npm run coveralls

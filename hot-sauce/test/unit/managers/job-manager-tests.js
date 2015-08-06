@@ -33,16 +33,18 @@ describe('job-manager: tests', function() {
         var mockCouchbase = require('../mocks/mock-couchbase-error.js');
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var mockLogger = function() {
-            return {
-                error: function(message, err) {
-                    expect(message).to.eql('Bucket Error: ');
-                    expect(err).to.not.be.null;
-                    done();
+        var mockLogger = {
+            Logger: function() {
+                return {
+                    error: function(message, err) {
+                        expect(message).to.eql('Bucket Error: ');
+                        expect(err).to.not.be.null;
+                        done();
+                    }
                 }
             }
         };
-        mockery.registerMock('../lib/logger.js', mockLogger);
+        mockery.registerMock('salt-pepper', mockLogger);
 
         var JobManager = require('../../../src/managers/job-manager.js');
         var manager = new JobManager(mockConfig);
@@ -65,15 +67,17 @@ describe('job-manager: tests', function() {
         var mockCouchbase = require('../mocks/mock-couchbase.js');
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var mockLogger = function() {
-            return {
-                info: function(message) {
-                    expect(message).to.eql('Connected to bucket');
-                    done();
+        var mockLogger = {
+            Logger: function() {
+                return {
+                    info: function(message) {
+                        expect(message).to.eql('Connected to bucket');
+                        done();
+                    }
                 }
             }
         };
-        mockery.registerMock('../lib/logger.js', mockLogger);
+        mockery.registerMock('salt-pepper', mockLogger);
 
         var JobManager = require('../../../src/managers/job-manager.js');
         var manager = new JobManager(mockConfig);
