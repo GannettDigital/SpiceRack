@@ -1,6 +1,7 @@
 # Salt Pepper
 
-SDK to add scheduling mechanisms backed by Hot Sauce API
+Common utilities used by the various SpiceRack modules
+
 Included Modules: 
 * Logger
 Wrapper around the winston logger to provide more context on the log message such as logging file, line number & pid
