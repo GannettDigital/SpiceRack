@@ -4,6 +4,7 @@ Couchbase Backed Job Scheduling Management API
 
 [![Build Status](https://travis-ci.org/GannettDigital/SpiceRack.svg?branch=master)](https://travis-ci.org/GannettDigital/SpiceRack)
 [![Coverage Status](https://coveralls.io/repos/GannettDigital/SpiceRack/badge.svg?branch=master&service=github)](https://coveralls.io/github/GannettDigital/SpiceRack?branch=master)
+[![NPM](https://nodei.co/npm/hot-sauce.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/hot-sauce/)
 
 ## Installation
 ```npm install hot-sauce```
