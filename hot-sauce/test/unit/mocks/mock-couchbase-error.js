@@ -9,7 +9,7 @@ module.exports.Cluster = function() {
 
         var self = this;
 
-        self.get = function(){}
+        self.get = function(){};
 
         //emit an error after a delay to allow handlers to register
         setTimeout(function(){
