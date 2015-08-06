@@ -4,7 +4,7 @@ module.exports = (function(){
     var util = require('util');
     var request = require('request');
     var format = require('string-format');
-    var Logger = require('hot-sauce').Logger;
+    var Logger = require('salt-pepper').Logger;
 
     var events = {
         JOB_FOUND: 'job-found',
