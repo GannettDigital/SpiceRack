@@ -38,7 +38,7 @@ var logger = new Logger(config.logger);
 
 logger.debug('debug message');
 logger.info('info message');
-var err = new Error('i did something bad);
+var err = new Error('i did something bad');
 logger.warn('warn message', err);   //will log will stack trace
 logger.error('error message', err); //will log will stack trace
 logger.fatal('error message', err); //will log will stack trace
@@ -55,7 +55,7 @@ var transactionId = 'someUniqueId';
 log.debug('i did something', null, transactionId);
 
 //somethig bad happened
-log.error('i'm going to fix error, err, transactionId);
+log.error('i\'m going to fix error, err, transactionId);
 
 //cleanup
 log.info('i cleaned up', null, transactionId);
