@@ -36,7 +36,7 @@ module.exports = (function(){
         self.registerErrorHandler = function(fnErrorHandler){
             self.on(events.JOB_ERROR, function(err){
                 fnErrorHandler(err);
-            })
+            });
         };
 
         self.completeJob = function(job, options){
