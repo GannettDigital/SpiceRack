@@ -34,15 +34,17 @@ describe('event-handler tests', function() {
     });
 
     it('should log a warning when an unregistered eventType is supplied to sendEvent', function(done){
-        var mockLogger = function(){
-            return {
-                warn: function(msg){
-                    expect(msg).to.eql('No handler registered for: unknown event');
-                    done();
+        var mockLogger = {
+            Logger: function() {
+                return {
+                    warn: function(msg) {
+                        expect(msg).to.eql('No handler registered for: unknown event');
+                        done();
+                    }
                 }
             }
         };
-        mockery.registerMock('./logger.js', mockLogger);
+        mockery.registerMock('salt-pepper', mockLogger);
 
         var EventHandler = require('../../../src/lib/event-handler.js');
         var eventHandler = new EventHandler({

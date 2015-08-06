@@ -22,7 +22,7 @@ npm run cover
 ## Usage
 ```javascript
 var Ajwain = require('ajwain');
-var Logger = require('hot-sauce').Logger;
+var Logger = require('salt-pepper').Logger;
 var os = require('os');
 
 var config = {

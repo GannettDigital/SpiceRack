@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (function () {
-    var Logger = require('./../lib/logger.js');
+    var Logger = require('salt-pepper').Logger;
     var parser = require('cron-parser');
 
     // to protect the application from itself, do not generate more than a few

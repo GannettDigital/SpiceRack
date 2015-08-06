@@ -5,7 +5,7 @@ module.exports = (function() {
     var bodyParser = require('body-parser');
     var fs = require('fs');
     var expressValidator = require('express-validator');
-    var Logger = require('./logger.js');
+    var Logger = require('salt-pepper').Logger;
 
     function HotSauce(config) {
         if(!config || !config instanceof Object) {

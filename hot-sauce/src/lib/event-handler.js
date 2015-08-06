@@ -2,7 +2,7 @@
 
 module.exports = (function () {
     var events = require('events');
-    var Logger = require('./logger.js');
+    var Logger = require('salt-pepper').Logger;
 
     var EventHandler = function(config){
         var self = {};
