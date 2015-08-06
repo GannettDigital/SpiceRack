@@ -15,6 +15,10 @@ For more documentation: https://github.com/GannettDigital/SpiceRack/tree/master/
 [![Coverage Status](https://coveralls.io/repos/GannettDigital/SpiceRack/badge.svg?branch=master&service=github)](https://coveralls.io/github/GannettDigital/SpiceRack?branch=master)
 [![NPM](https://nodei.co/npm/ajwain.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/ajwain/)
 
+- nodejs SDK to interact with Hot Sauce api
+
+For more documentation: https://github.com/GannettDigital/SpiceRack/tree/master/ajwain
+
 ## Salt Pepper
 [![Build Status](https://travis-ci.org/GannettDigital/SpiceRack.svg?branch=master)](https://travis-ci.org/GannettDigital/SpiceRack)
 [![Coverage Status](https://coveralls.io/repos/GannettDigital/SpiceRack/badge.svg?branch=master&service=github)](https://coveralls.io/github/GannettDigital/SpiceRack?branch=master)
