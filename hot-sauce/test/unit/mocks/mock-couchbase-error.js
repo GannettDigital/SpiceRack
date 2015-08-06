@@ -11,8 +11,9 @@ module.exports.Cluster = function() {
 
         self.get = function(){};
 
+        //emit an error after a delay to allow handlers to register
         setTimeout(function(){
-            self.emit('connect');
+            self.emit('error', new Error());
         }, 100);
     };
 

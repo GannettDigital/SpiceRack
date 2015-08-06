@@ -244,6 +244,85 @@ describe('job-controller: getAvailable tests', function(){
         });
     });
 
+    it('should trigger the GET_AND_LOCK event on finding a job', function(done){
+        var mockConfig = {
+            couchbase: {
+                cluster: [],
+                bucket: {
+                    name: 'name',
+                    password: '123'
+                }
+            }
+        };
+        var lockedJob = {
+            id: 1,
+            code: 'test-job',
+            jobData: {},
+            locking: {
+                lockedOn: new Date(),
+                lockedBy: 'tester',
+                locked: true
+            }
+        };
+
+        var mockCouchbase = {
+            ViewQuery: {
+                from: function(bucket, view) {
+                    return {
+                        range: function(startKey, endKey){
+                            return {
+                                limit: function(){
+                                    return {
+                                        stale: function(){
+                                            return {};
+                                        }
+                                    };
+                                }
+                            };
+                        }
+                    }
+                },
+                Update: {
+                    BEFORE: 0
+                }
+            },
+            Cluster: function() {
+                var self = {};
+
+                self.openBucket = function() {
+                    return {
+                        on: function() {
+                        },
+                        getAndLock: function(id, options, callback) {
+                            expect(options.cas).to.not.be.null;
+                            expect(id).to.not.be.null;
+                            done();
+                        },
+                        upsert: function(id, job, options, callback){
+
+                        },
+                        query: function(q, callback) {
+                            callback(null, [{
+                                id: lockedJob.id,
+                                value:lockedJob.code,
+                                cas: 123
+                            }]);
+                        }
+                    };
+                };
+
+                return self;
+            }
+        };
+
+        mockery.registerMock('couchbase', mockCouchbase);
+
+        var JobManager = require('../../../src/managers/job-manager.js');
+        var manager = new JobManager(mockConfig);
+
+        manager.findAvailableJob([lockedJob.code], 'tester', function(err, result) {});
+    });
+
     after(function() {
         mockery.disable();
     });
