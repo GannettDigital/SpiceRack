@@ -162,7 +162,7 @@ module.exports = (function () {
                 }
                 if(!jobId){
                     logger.warn('unable to find matching job in results');
-                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, afterGet);
+                    eventHandler.sendEvent(jobEvents.HANDLE_RESPONSE, options.callback);
                     return;
                 }
 
