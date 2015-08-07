@@ -19,7 +19,6 @@ module.exports = (function(){
         var self = this;
         var interval = null;
 
-
         self.registerJobHandler = function(options, fnJobHandler){
             validateRegisterParameters(options, fnJobHandler);
             self.on(events.JOB_FOUND, function(job) {
@@ -66,6 +65,7 @@ module.exports = (function(){
         }
 
         function validateConfig(config){
+            if(!config) throw new Error('config must be specified');
             if(!config.pollInterval) throw new Error('pollInterval must be specified');
             if(typeof(config.pollInterval) !== 'number') throw new Error('pollInterval must be a number');
             if(config.pollInterval <= 0) throw new Error('pollInterval must be greater than 0');
