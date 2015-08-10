@@ -21,12 +21,14 @@ describe('job-controller: upsert tests', function(){
 
     it('should call next() with status 400 when body fails validation', function(done){
         var id = 1;
-        var mockManager = function(){
-            return {
-                save: function(job, callback){
-                    assert.fail();
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    save: function(job, callback) {
+                        assert.fail();
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {
@@ -51,7 +53,7 @@ describe('job-controller: upsert tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -63,14 +65,16 @@ describe('job-controller: upsert tests', function(){
     });
 
     it('should call the jobManager.save when body is valid', function(done){
-        var mockManager = function(){
-            return {
-                save: function(job, callback){
-                    callback(null, job);
-                    assert.ok(true);
-                    done();
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    save: function(job, callback) {
+                        callback(null, job);
+                        assert.ok(true);
+                        done();
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {
@@ -92,7 +96,7 @@ describe('job-controller: upsert tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -103,12 +107,14 @@ describe('job-controller: upsert tests', function(){
     });
 
     it('should call the json handler of the response when save is successful', function(done){
-        var mockManager = function(){
-            return {
-                save: function(job, callback){
-                    callback(null, job);
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    save: function(job, callback) {
+                        callback(null, job);
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {
@@ -131,7 +137,7 @@ describe('job-controller: upsert tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
