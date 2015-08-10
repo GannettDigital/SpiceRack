@@ -128,6 +128,16 @@ function (doc, meta) {
 }
 ```
 
+#### GetJobsMaintenance
+```javascript
+function (doc, meta) {
+  var key = [];
+  key.push(doc.locking ? doc.locking.locked : false);
+  key.push(doc.id);
+  emit(key, doc);
+}
+```
+
 ## Routes
 * GET `/jobs` 
 Index of all jobs stored in couchbase

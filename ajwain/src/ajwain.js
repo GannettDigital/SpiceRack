@@ -1,10 +1,10 @@
 'use strict';
 module.exports = (function(){
-    var EventEmitter = require('events').EventEmitter;
     var util = require('util');
-    var request = require('request');
     var format = require('string-format');
     var Logger = require('salt-pepper').Logger;
+    var JobManager = require('salt-pepper').JobManager;
+    var EventHandler = require('salt-pepper').EventHandler;
 
     var events = {
         JOB_FOUND: 'job-found',
@@ -16,30 +16,31 @@ module.exports = (function(){
     var Ajwain = function(config){
         validateConfig(config);
         var self = this;
-        var _logger = new Logger(config.logger);
         var _interval = null;
+
+        var _jobManager = new JobManager(config);
+        var _eventHandler = new EventHandler(config);
+        var _logger = new Logger(config.logger);
 
         self.registerJobHandler = function(options, fnJobHandler){
             validateRegisterParameters(options, fnJobHandler);
-            self.on(events.JOB_FOUND, function(job) {
-                fnJobHandler(job, function() {
-                    self.emit(events.JOB_COMPLETE, job);
-                });
+            _eventHandler.watchEvent(events.JOB_FOUND, function(job) {
+                fnJobHandler(job);
             });
 
             _interval = setInterval(function(){
-                self.emit(events.GET_JOB, options);
+                _eventHandler.sendEvent(events.GET_JOB, options);
             }, config.pollInterval);
         };
 
         self.registerErrorHandler = function(fnErrorHandler){
-            self.on(events.JOB_ERROR, function(err){
+            _eventHandler.watchEvent(events.JOB_ERROR, function(err){
                 fnErrorHandler(err);
             });
         };
 
         self.completeJob = function(job, options){
-            self.emit(events.JOB_COMPLETE, job, options);
+            _eventHandler.sendEvent(events.JOB_COMPLETE, job, options);
         };
 
         self.shutdown = function(){
@@ -48,11 +49,7 @@ module.exports = (function(){
         };
 
         function emitError(err){
-            if(self.listeners(events.JOB_ERROR).length == 0){
-                _logger.warn('error encountered, but no error handler registered ' + err);
-            } else {
-                self.emit(events.JOB_ERROR, err);
-            }
+            _eventHandler.sendEvent(events.JOB_ERROR, err);
         }
 
         function validateRegisterParameters(options, handlerFunction){
@@ -72,73 +69,44 @@ module.exports = (function(){
             if(!config.logger) throw new Error('logger must be configured');
             if(typeof(config.logger) !== 'object') throw new Error('logger must be an object');
 
-            if(!config.hotSauceHost) throw new Error('hotSauceHost must be configured');
-            if(!config.apiKey) throw new Error('apiKey must be configured for access to HotSauce');
+            if(!config.couchbase) throw new Error('couchbase must be specified');
+            if(typeof(config.couchbase) !== 'object') throw new Error('couchbase must be an object');
+
+            if(!config.couchbase.cluster) throw new Error('couchbase.cluster must be specified');
+            if(!config.couchbase.bucket) throw new Error('couchbase.bucketmust be specified');
         }
 
-        self.on(events.GET_JOB, function(options){
-            var url = format('{3}/jobs/available?apiKey={2}&codes={0}&caller={1}',
-                options.jobCodes.join(),
-                options.caller,
-                config.apiKey,
-                config.hotSauceHost);
+        _eventHandler.watchEvent(events.GET_JOB, function(options){
 
-            request(url, function(error, response, body){
-                if(error){
-                    emitError(error);
-
-                } else if(response.statusCode != 200 && response.statusCode != 404) {
-                    var err = new Error();
-                    err.message = 'Unexpected status code ' + response.statusCode;
-                    err.statusCode = response.statusCode;
+            _jobManager.findAvailableJob(options.jobCodes, options.caller, function(err, job){
+                if(err){
                     emitError(err);
-                } else if(response.statusCode != 404){
-                    try {
-                        var job = JSON.parse(body);
-                        _logger.info('received job: ' + job.id);
-                        if(job.jobData) {
-                            var jobToProcess = {
-                                id: job.id,
-                                code: job.code,
-                                jobData: job.jobData,
-                                scheduledRun: job.triggeringOccurrence
+                } else if (job){
+                    _logger.info('received job: ' + job.id);
+                    var jobToProcess = {
+                        id: job.id,
+                        code: job.code,
+                        jobData: job.jobData,
+                        scheduledRun: job.triggeringOccurrence
 
-                            };
-                            emitter.emit(events.JOB_FOUND, jobToProcess);
-                        }
-                    } catch (err){
-                       emitError(err);
-                    }
+                    };
+                    _eventHandler.sendEvent(events.JOB_FOUND, jobToProcess);
                 } else {
-                    //no job found, so just move on. nothing to see here
+                    //no job for now. nothing to do
                 }
             });
         });
 
-        self.on(events.JOB_COMPLETE, function(job, options){
-            var url = format('{3}/api/jobs/{0}/unlock?apiKey={2}&caller={1}',
-                job.id,
-                options.caller,
-                config.apiKey,
-                config.hotSauceHost);
-            request(url, function(err, response, body){
-                if(err){
-                    emitError(err);
-                } else if(response.statusCode != 200 && response.statusCode != 404) {
-                    var err = new Error();
-                    err.message = 'Unexpected status code ' + response.statusCode;
-                    err.statusCode = response.statusCode;
-                    emitError(err);
-                } else {
-                    _logger.info('unlocked job: ' + JSON.parse(body).id);
+        _eventHandler.watchEvent(events.JOB_COMPLETE, function(job, options){
+            _jobManager.unlock(job.id, options.caller, function(err) {
+                if(err) {
+                    _logger.error('error unlocking job: ' + job.id, err);
                 }
             });
         });
 
         return self;
     };
-
-    util.inherits(Ajwain, EventEmitter);
 
     return Ajwain;
 })();

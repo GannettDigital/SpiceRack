@@ -1,16 +1,15 @@
 module.exports = (function() {
     var self = this;
+    var JobsController = require('../controllers/job.js');
 
     self.initialize = function(app, config) {
-        var JobsController = require('../controllers/job.js');
+        var _jobsController = new JobsController(config);
 
-        var jobsController = new JobsController(config);
-
-        app.get('/jobs', jobsController.getAll);
-        app.get('/jobs/available', jobsController.getAvailable);
-        app.get('/jobs/:id/unlock', jobsController.unlock);
-        app.get('/jobs/:id', jobsController.getById);
-        app.post('/jobs', jobsController.upsert);
+        app.get('/jobs', _jobsController.getAll);
+        app.get('/jobs/available', _jobsController.getAvailable);
+        app.get('/jobs/:id/unlock', _jobsController.unlock);
+        app.get('/jobs/:id', _jobsController.getById);
+        app.post('/jobs', _jobsController.upsert);
     };
 
     return self;

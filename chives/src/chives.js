@@ -5,7 +5,6 @@ module.exports = (function() {
     var request = require('request');
     var format = require('string-format');
     var SaltPepper = require('salt-pepper');
-    var JobsManager = require('./lib/jobs-manager.js');
 
     var events = {
         UNLOCK_LOCKED_JOBS: 'unlock-locked-jobs',
@@ -17,10 +16,10 @@ module.exports = (function() {
         validateConfig(config);
         var self = this;
         var _logger = new SaltPepper.Logger(config.logger);
+        var _jobManager = new SaltPepper.JobManager(config);
 
         var _lockedJobsInterval = null;
         var _generateInstancesInterval = null;
-        var _jobsManager = new JobsManager(config);
 
         function validateConfig(config){
             if(!config) throw new Error('config must be specified');
@@ -32,8 +31,11 @@ module.exports = (function() {
             if(!config.logger) throw new Error('logger must be configured');
             if(typeof(config.logger) !== 'object') throw new Error('logger must be an object');
 
-            if(!config.hotSauceHost) throw new Error('hotSauceHost must be configured');
-            if(!config.apiKey) throw new Error('apiKey must be configured for access to HotSauce');
+            if(!config.couchbase) throw new Error('couchbase must be specified');
+            if(typeof(config.couchbase) !== 'object') throw new Error('couchbase must be an object');
+
+            if(!config.couchbase.cluster) throw new Error('couchbase.cluster must be specified');
+            if(!config.couchbase.bucket) throw new Error('couchbase.bucketmust be specified');
         }
 
         function validatePollInterval(pollInterval){
@@ -62,13 +64,11 @@ module.exports = (function() {
             clearInterval(_generateInstancesInterval);
         };
 
-        self.on(events.UNLOCK_LOCKED_JOBS, function(){
+        self.on(events.UNLOCK_LOCKED_JOBS, function() {
             _logger.debug('begin unlock jobs');
-            var url = format('{0}/jobs/?apiKey={1}&locked=true',
-                config.hotSauceHost,
-                config.apiKey);
-            _jobsManager.queryJobs(url, function(err, jobs){
-                if(err){
+
+            _jobManager.getLockedJobs(function(err, jobs) {
+                if(err) {
                     _logger.error('error with unlock job', err);
                 }
                 else if(!jobs || jobs.length == 0) {
@@ -87,7 +87,7 @@ module.exports = (function() {
                 config.hotSauceHost,
                 config.apiKey);
 
-            _jobsManager.queryJobs(url, function(err, jobs){
+            _jobsManager.getExpiringJobs(url, function(err, jobs){
                 if(err){
                     _logger.error('error with generate instances job', err);
                 }
