@@ -1,4 +1,4 @@
-describe('ajwain tests', function() {
+describe('chives tests', function() {
     var mockery = require('mockery');
     var expect = require('chai').expect;
     var assert = require('assert');
@@ -19,81 +19,118 @@ describe('ajwain tests', function() {
     });
 
     it('should throw error when config is not supplied', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
-            new Ajwain();
+            new Chives();
         };
 
-        expect(doIt).throw('config must be specified');
+        expect(doIt).to.throw('config must be specified');
     });
 
     it('should throw error when pollInterval is not configured', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
-            new Ajwain({});
+            new Chives({});
         };
 
-        expect(doIt).throw('pollIntervals must be specified');
+        expect(doIt).to.throw('pollIntervals must be specified');
+    });
+
+    it('should throw error when pollIntervals is not an object', function() {
+        var Chives = require('../../src/chives.js');
+        var doIt = function() {
+            new Chives({
+                pollIntervals: 'not object'
+            });
+        };
+
+        expect(doIt).to.throw('pollIntervals must be an object');
+    });
+
+    it('should throw error when pollInterval for generateInstances is not specified', function() {
+        var Chives = require('../../src/chives.js');
+        var doIt = function() {
+            var config = {
+                pollIntervals: {}
+            };
+            new Chives(config);
+        };
+
+        expect(doIt).to.throw('pollInterval must be specified');
     });
 
     it('should throw error when pollInterval for generateInstances is not a number', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
             };
             config.pollIntervals.generateInstances = 'nan';
-            new Ajwain(config);
+            new Chives(config);
         };
 
-        expect(doIt).throw('pollInterval must be a number');
+        expect(doIt).to.throw('pollInterval must be a number');
     });
 
     it('should throw error when pollInterval for generateInstances is not a positive number', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
             };
             config.pollIntervals.generateInstances = -10;
-            new Ajwain(config);
+            new Chives(config);
         };
 
-        expect(doIt).throw('pollInterval must be greater than 0');
+        expect(doIt).to.throw('pollInterval must be greater than 0');
+    });
+
+    it('should throw error when pollInterval for unlockJobs is not specified', function() {
+        var Chives = require('../../src/chives.js');
+        var doIt = function() {
+            var config = {
+                pollIntervals: {
+                    generateInstances: 100
+                }
+            };
+            new Chives(config);
+        };
+
+        expect(doIt).to.throw('pollInterval must be specified');
     });
 
     it('should throw error when pollInterval for unlockJobs is not a number', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
             };
             config.pollIntervals.generateInstances = 1;
             config.pollIntervals.unlockJobs = 'nan';
-            new Ajwain(config);
+            new Chives(config);
         };
 
-        expect(doIt).throw('pollInterval must be a number');
+        expect(doIt).to.throw('pollInterval must be a number');
     });
 
     it('should throw error when pollInterval for unlockJobs is not a positive number', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
             };
             config.pollIntervals.generateInstances = -10;
             config.pollIntervals.unlockJobs = -10;
-            new Ajwain(config);
+            new Chives(config);
         };
 
-        expect(doIt).throw('pollInterval must be greater than 0');
+        expect(doIt).to.throw('pollInterval must be greater than 0');
     });
 
     it('should throw error when logger is not configured', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
-            new Ajwain({
+            new Chives({
                 pollIntervals: {
                     generateInstances: 1,
                     unlockJobs: 1
@@ -101,13 +138,13 @@ describe('ajwain tests', function() {
             });
         };
 
-        expect(doIt).throw('logger must be configured');
+        expect(doIt).to.throw('logger must be configured');
     });
 
     it('should throw error when logger is not an object', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
-            new Ajwain({
+            new Chives({
                 pollIntervals: {
                     generateInstances: 1,
                     unlockJobs: 1
@@ -116,13 +153,13 @@ describe('ajwain tests', function() {
             });
         };
 
-        expect(doIt).throw('logger must be an object');
+        expect(doIt).to.throw('logger must be an object');
     });
 
     it('should throw error when apiKey is not configured', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
-            new Ajwain({
+            new Chives({
                 pollIntervals: {
                     generateInstances: 1,
                     unlockJobs: 1
@@ -132,13 +169,13 @@ describe('ajwain tests', function() {
             });
         };
 
-        expect(doIt).throw('apiKey must be configured');
+        expect(doIt).to.throw('apiKey must be configured');
     });
 
     it('should throw error when hotSauceHost is not configured', function() {
-        var Ajwain = require('../../src/chives.js');
+        var Chives = require('../../src/chives.js');
         var doIt = function() {
-            new Ajwain({
+            new Chives({
                 pollIntervals: {
                     generateInstances: 1,
                     unlockJobs: 1
@@ -148,7 +185,68 @@ describe('ajwain tests', function() {
             });
         };
 
-        expect(doIt).throw('hotSauceHost must be configured');
+        expect(doIt).to.throw('hotSauceHost must be configured');
+    });
+
+    it('should not throw error when config is valid', function() {
+        var Chives = require('../../src/chives.js');
+        var doIt = function() {
+            new Chives({
+                pollIntervals: {
+                    generateInstances: 1,
+                    unlockJobs: 1
+                },
+                logger: {},
+                apiKey: 'apiKey',
+                hotSauceHost:'some.host'
+            });
+        };
+
+        expect(doIt).to.not.throw(Error);
+    });
+
+    it('should emit UNLOCK_LOCKED_JOBS event on start', function(done) {
+        var Chives = require('../../src/chives.js');
+
+        var chives = new Chives({
+                pollIntervals: {
+                    generateInstances: 1,
+                    unlockJobs: 1
+                },
+                logger: {},
+                apiKey: 'apiKey',
+                hotSauceHost: 'some.host'
+            });
+
+        chives.on('unlock-locked-jobs', function(){
+           assert.ok(true);
+            done();
+            chives.stop();
+        });
+
+        chives.start();
+    });
+
+    it('should emit GENERATE_INSTANCES event on start', function(done) {
+        var Chives = require('../../src/chives.js');
+
+        var chives = new Chives({
+            pollIntervals: {
+                generateInstances: 1,
+                unlockJobs: 1
+            },
+            logger: {},
+            apiKey: 'apiKey',
+            hotSauceHost: 'some.host'
+        });
+
+        chives.on('generate-instances', function(){
+            assert.ok(true);
+            done();
+            chives.stop();
+        });
+
+        chives.start();
     });
 
     after(function() {
