@@ -15,9 +15,9 @@ module.exports = (function(){
 
     var Ajwain = function(config){
         validateConfig(config);
-        var logger = new Logger(config.logger);
         var self = this;
-        var interval = null;
+        var _logger = new Logger(config.logger);
+        var _interval = null;
 
         self.registerJobHandler = function(options, fnJobHandler){
             validateRegisterParameters(options, fnJobHandler);
@@ -27,7 +27,7 @@ module.exports = (function(){
                 });
             });
 
-            interval = setInterval(function(){
+            _interval = setInterval(function(){
                 self.emit(events.GET_JOB, options);
             }, config.pollInterval);
         };
@@ -43,13 +43,13 @@ module.exports = (function(){
         };
 
         self.shutdown = function(){
-            if(!interval) return;
-            clearInterval(interval);
+            if(!_interval) return;
+            clearInterval(_interval);
         };
 
         function emitError(err){
             if(self.listeners(events.JOB_ERROR).length == 0){
-                logger.warn('error encountered, but no error handler registered ' + err);
+                _logger.warn('error encountered, but no error handler registered ' + err);
             } else {
                 self.emit(events.JOB_ERROR, err);
             }
@@ -60,7 +60,6 @@ module.exports = (function(){
             if(!options.jobCodes) throw new Error('jobCodes must be specified in options');
             if(!Array.isArray(options.jobCodes)) throw new Error('jobCodes must be an array');
             if(options.jobCodes.length == 0) throw new Error('at least one jobCode must be specified');
-
             if(typeof(handlerFunction) !== 'function') throw new Error('handler must be a function');
         }
 
@@ -75,11 +74,10 @@ module.exports = (function(){
 
             if(!config.hotSauceHost) throw new Error('hotSauceHost must be configured');
             if(!config.apiKey) throw new Error('apiKey must be configured for access to HotSauce');
-
         }
 
         self.on(events.GET_JOB, function(options){
-            var url = format('{3}/api/jobs/available?apiKey={2}&codes={0}&caller={1}',
+            var url = format('{3}/jobs/available?apiKey={2}&codes={0}&caller={1}',
                 options.jobCodes.join(),
                 options.caller,
                 config.apiKey,
@@ -93,11 +91,11 @@ module.exports = (function(){
                     var err = new Error();
                     err.message = 'Unexpected status code ' + response.statusCode;
                     err.statusCode = response.statusCode;
-                    emitter.emit(events.JOB_ERROR, err);
+                    emitError(err);
                 } else if(response.statusCode != 404){
                     try {
                         var job = JSON.parse(body);
-                        logger.info('received job: ' + job.id);
+                        _logger.info('received job: ' + job.id);
                         if(job.jobData) {
                             var jobToProcess = {
                                 id: job.id,
@@ -109,7 +107,7 @@ module.exports = (function(){
                             emitter.emit(events.JOB_FOUND, jobToProcess);
                         }
                     } catch (err){
-                        emitter.emit(events.JOB_ERROR, err);
+                       emitError(err);
                     }
                 } else {
                     //no job found, so just move on. nothing to see here
@@ -132,11 +130,10 @@ module.exports = (function(){
                     err.statusCode = response.statusCode;
                     emitError(err);
                 } else {
-                    logger.info('unlocked job: ' + JSON.parse(body).id);
+                    _logger.info('unlocked job: ' + JSON.parse(body).id);
                 }
             });
         });
-
 
         return self;
     };

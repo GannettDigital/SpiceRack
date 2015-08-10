@@ -5,19 +5,22 @@ module.exports = (function() {
     var request = require('request');
     var format = require('string-format');
     var Logger = require('salt-pepper').Logger;
+    var JobsManager = require('./lib/jobs-manager.js');
 
     var events = {
         UNLOCK_LOCKED_JOBS: 'unlock-locked-jobs',
-        GENERATE_INSTANCES: 'generate-instances'
+        GENERATE_INSTANCES: 'generate-instances',
+        PROCESS_UNLOCKS: 'process-unlocks'
     };
 
     var Chives = function(config) {
         validateConfig(config);
-        var logger = new Logger(config.logger);
         var self = this;
-        var lockedJobsInterval = null;
-        var generateInstancesInterval = null;
+        var _logger = new Logger(config.logger);
 
+        var _lockedJobsInterval = null;
+        var _generateInstancesInterval = null;
+        var _jobsManager = new JobsManager(config);
 
         function validateConfig(config){
             if(!config) throw new Error('config must be specified');
@@ -40,33 +43,61 @@ module.exports = (function() {
         }
 
         self.start = function(){
-            logger.debug('starting unlock jobs process');
-            lockedJobsInterval = setInterval(function(){
+            _logger.debug('starting unlock jobs process');
+            _lockedJobsInterval = setInterval(function(){
                 self.emit(events.UNLOCK_LOCKED_JOBS);
             }, config.pollIntervals.unlockJobs);
 
-            logger.debug('starting generate instances process');
-            generateInstancesInterval = setInterval(function(){
+            _logger.debug('starting generate instances process');
+            _generateInstancesInterval = setInterval(function(){
                 self.emit(events.GENERATE_INSTANCES);
             }, config.pollIntervals.generateInstances);
 
         };
 
         self.stop = function(){
-            logger.debug('stopping unlock jobs process');
-            clearInterval(lockedJobsInterval);
-            logger.debug('stopping generate instances process');
-            clearInterval(generateInstancesInterval);
+            _logger.debug('stopping unlock jobs process');
+            clearInterval(_lockedJobsInterval);
+            _logger.debug('stopping generate instances process');
+            clearInterval(_generateInstancesInterval);
         };
 
         self.on(events.UNLOCK_LOCKED_JOBS, function(){
-            logger.debug('begin unlock jobs');
-            logger.debug('end unlock jobs');
+            _logger.debug('begin unlock jobs');
+            var url = format('{0}/jobs/?apiKey={1}&locked=true',
+                config.hotSauceHost,
+                config.apiKey);
+            _jobsManager.queryJobs(url, function(err, jobs){
+                if(err){
+                    _logger.error('error with unlock job', err);
+                }
+                else if(!jobs || jobs.length == 0) {
+                    _logger.info('no jobs found to work on');
+                } else {
+                    self.emit(events.PROCESS_UNLOCKS, jobs);
+                }
+                _logger.debug('end unlock jobs');
+            });
         });
 
         self.on(events.GENERATE_INSTANCES, function(){
-            logger.debug('begin generate instances job');
-            logger.debug('end generate instances jobs');
+            _logger.debug('begin generate instances job');
+            //TODO: how to handle locked jobs close to expiration
+            var url = format('{0}/jobs/?apiKey={1}&locked=false',
+                config.hotSauceHost,
+                config.apiKey);
+
+            _jobsManager.queryJobs(url, function(err, jobs){
+                if(err){
+                    _logger.error('error with generate instances job', err);
+                }
+                else if(!jobs || jobs.length == 0) {
+                    _logger.info('no jobs found to work on');
+                } else {
+                    _logger.debug(jobs);
+                }
+                _logger.debug('end generate instances jobs');
+            });
         });
 
         return self;

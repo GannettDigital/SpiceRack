@@ -26,7 +26,7 @@ var Logger = require('salt-pepper').Logger;
 var os = require('os');
 
 var config = {
-    hotSauceHost: 'http://localhost:3000',
+    hotSauceHost: 'http://localhost:3000/api/',
     apiKey: 'worker-XXXXX',
     pollInterval: 1000, //time to poll in ms
     logger: {
