@@ -42,10 +42,7 @@ module.exports = (function () {
                     }
                 }
             });
-
-
         };
-
 
         self.getAvailable = function(req, res, next){
             req.checkQuery('codes', 'is required').notEmpty();
@@ -87,8 +84,6 @@ module.exports = (function () {
         };
 
         self.upsert = function(req, res, next){
-            //validation
-
             req.checkBody('id', 'is required').notEmpty();
             req.checkBody('name', 'is required').notEmpty();
             req.checkBody('code', 'is required').notEmpty();
@@ -99,7 +94,6 @@ module.exports = (function () {
             req.checkBody('schedule', 'must be an object').isObject();
             req.checkBody('schedule.cron', 'is required').notEmpty();
             req.checkBody('locking', 'may not be updated through the api').empty();
-
 
             var validationErrors = req.validationErrors();
             if (validationErrors) {
