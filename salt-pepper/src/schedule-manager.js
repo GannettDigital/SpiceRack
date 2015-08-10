@@ -1,14 +1,14 @@
 'use strict';
 
 module.exports = (function () {
-    var Logger = require('salt-pepper').Logger;
+    var Logger = require('./logger.js');
     var parser = require('cron-parser');
 
     // to protect the application from itself, do not generate more than a few
     // when the current / end dates are too wide with a loose cron
     var MAX_OCCURRENCES = 5;
     // Note for Job Manager
-    // at 10 occurrences, the cleanup / maintenance activities must run every 10 or fewer seconds to ensure
+    // at 5 occurrences, the cleanup / maintenance activities must run every 5 or fewer seconds to ensure
     // no gaps in instances
     // future TODO: address the coordination dependency
 

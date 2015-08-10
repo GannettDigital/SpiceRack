@@ -1,4 +1,4 @@
-describe('job-manager: getAllJobs tests', function() {
+describe('job-manager: getAvailableJob tests', function() {
 
     var mockery = require('mockery');
     var expect = require('chai').expect;
@@ -73,10 +73,10 @@ describe('job-manager: getAllJobs tests', function() {
         };
 
         mockery.registerMock('couchbase', mockCouchbase);
-        mockery.registerMock('../lib/event-handler.js', mockHandler);
-        mockery.registerMock('../lib/logger.js', mockLogger);
+        mockery.registerMock('./event-handler.js', mockHandler);
+        mockery.registerMock('./logger.js', mockLogger);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.findAvailableJob(expectedJobCodes, afterGet);

@@ -2,30 +2,29 @@
 
 module.exports = (function () {
     var events = require('events');
-    var Logger = require('salt-pepper').Logger;
+    var Logger = require('./logger.js');
 
     var EventHandler = function(config){
         var self = {};
-        var logger = new Logger(config.logger);
-        var emitter = new events.EventEmitter();
+        var _logger = new Logger(config.logger);
+        var _emitter = new events.EventEmitter();
 
         self.watchEvent = function(eventType, eventHandler){
-            emitter.on(eventType, function(){
+            _emitter.on(eventType, function(){
                 var args = arguments;
                 eventHandler.apply(this, args);
             })
         };
 
         self.sendEvent = function(eventType){
-
-            if(emitter.listeners(eventType).length == 0){
-                logger.warn('No handler registered for: ' + eventType);
+            if(_emitter.listeners(eventType).length == 0){
+                _logger.warn('No handler registered for: ' + eventType);
             } else {
-                emitter.emit.apply(emitter, arguments)
+                _emitter.emit.apply(_emitter, arguments)
             }
         };
-
         return self;
     };
+
     return EventHandler;
 })();

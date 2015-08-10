@@ -5,11 +5,11 @@ module.exports = function(config) {
     var format = require('string-format');
     var dateFormat = require('dateformat');
     var stack = require('callsite');
+
     var _config = config || {};
 
     var EventEmitter = require('events').EventEmitter;
-
-    var emitter = new EventEmitter();
+    var _emitter = new EventEmitter();
 
     //For formatting info, see http://blog.stevenlevithan.com/archives/date-time-format
     var dateTimeFormat = "dd mmm HH:MM:ss,l";
@@ -45,7 +45,7 @@ module.exports = function(config) {
 
     var logger = new (winston.Logger)({transports: transports});
 
-    emitter.on(events.LOG_EVENT_RAISED_EVENT, function(level, message, transactionId, stack, args) {
+    _emitter.on(events.LOG_EVENT_RAISED_EVENT, function(level, message, transactionId, stack, args) {
         var messageToLog = message;
 
         if(args && args.stack) {
@@ -71,10 +71,10 @@ module.exports = function(config) {
     });
 
     this.events = events;
-    this.eventEmitter = emitter;
+    this.eventEmitter = _emitter;
 
     function log(level, message, stack, args, transactionId) {
-        emitter.emit(events.LOG_EVENT_RAISED_EVENT, level, message, transactionId, stack, args);
+        _emitter.emit(events.LOG_EVENT_RAISED_EVENT, level, message, transactionId, stack, args);
     }
 
     this.info = function(message, args, transactionId) {

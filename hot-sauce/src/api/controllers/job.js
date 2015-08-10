@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (function () {
 
-    var JobsManager = require('../../managers/job-manager.js');
+    var JobsManager = require('salt-pepper').JobManager;
 
     var JobsController = function(config) {
         var self = {};

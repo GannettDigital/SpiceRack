@@ -317,7 +317,7 @@ describe('job-controller: getAvailable tests', function(){
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.findAvailableJob([lockedJob.code], 'tester', function(err, result) {});
