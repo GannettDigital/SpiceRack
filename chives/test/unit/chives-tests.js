@@ -19,7 +19,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when config is not supplied', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             new Chives();
         };
@@ -28,7 +28,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollInterval is not configured', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             new Chives({});
         };
@@ -37,7 +37,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollIntervals is not an object', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             new Chives({
                 pollIntervals: 'not object'
@@ -48,7 +48,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollInterval for generateInstances is not specified', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
@@ -60,7 +60,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollInterval for generateInstances is not a number', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
@@ -73,7 +73,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollInterval for generateInstances is not a positive number', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
@@ -86,7 +86,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollInterval for unlockJobs is not specified', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {
@@ -100,7 +100,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollInterval for unlockJobs is not a number', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
@@ -114,7 +114,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when pollInterval for unlockJobs is not a positive number', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             var config = {
                 pollIntervals: {}
@@ -142,7 +142,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when logger is not an object', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             new Chives({
                 pollIntervals: {
@@ -157,7 +157,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when apiKey is not configured', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             new Chives({
                 pollIntervals: {
@@ -173,7 +173,7 @@ describe('chives tests', function() {
     });
 
     it('should throw error when hotSauceHost is not configured', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             new Chives({
                 pollIntervals: {
@@ -189,7 +189,7 @@ describe('chives tests', function() {
     });
 
     it('should not throw error when config is valid', function() {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
         var doIt = function() {
             new Chives({
                 pollIntervals: {
@@ -206,7 +206,7 @@ describe('chives tests', function() {
     });
 
     it('should emit UNLOCK_LOCKED_JOBS event on start', function(done) {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
 
         var chives = new Chives({
                 pollIntervals: {
@@ -228,7 +228,7 @@ describe('chives tests', function() {
     });
 
     it('should emit GENERATE_INSTANCES event on start', function(done) {
-        var Chives = require('../../src/chives.js');
+        var Chives = require('../../index.js');
 
         var chives = new Chives({
             pollIntervals: {
