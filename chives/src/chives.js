@@ -4,7 +4,7 @@ module.exports = (function() {
     var util = require('util');
     var request = require('request');
     var format = require('string-format');
-    var Logger = require('salt-pepper').Logger;
+    var SaltPepper = require('salt-pepper');
     var JobsManager = require('./lib/jobs-manager.js');
 
     var events = {
@@ -16,7 +16,7 @@ module.exports = (function() {
     var Chives = function(config) {
         validateConfig(config);
         var self = this;
-        var _logger = new Logger(config.logger);
+        var _logger = new SaltPepper.Logger(config.logger);
 
         var _lockedJobsInterval = null;
         var _generateInstancesInterval = null;
