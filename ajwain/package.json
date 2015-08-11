@@ -1,6 +1,6 @@
 {
   "name": "ajwain",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "SDK to provide scheduled job execution functionality to node applications",
   "main": "index.js",
   "scripts": {

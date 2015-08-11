@@ -1,6 +1,6 @@
 {
   "name": "salt-pepper",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Common utilities used by the various SpiceRack modules",
   "main": "index.js",
   "scripts": {
