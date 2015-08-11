@@ -21,7 +21,7 @@ module.exports = (function() {
         var _lockedJobsInterval = null;
         var _generateInstancesInterval = null;
 
-        function validateConfig(config){
+        function validateConfig(config) {
             if(!config) throw new Error('config must be specified');
             if(typeof(config) !== 'object') throw new Error('config must be an object');
             if(!config.pollIntervals) throw new Error('pollIntervals must be specified');
@@ -39,26 +39,26 @@ module.exports = (function() {
             if(!config.couchbase.bucket) throw new Error('couchbase.bucket must be specified');
         }
 
-        function validatePollInterval(pollInterval, name){
+        function validatePollInterval(pollInterval, name) {
             if(!pollInterval) throw new Error(format('{0} must be specified', name));
             if(typeof(pollInterval) !== 'number') throw new Error(format('{0} must be a number', name));
             if(pollInterval <= 0) throw new Error(format('{0} must be greater than 0', name));
         }
 
-        self.start = function(){
+        self.start = function() {
             _logger.debug('starting unlock jobs process');
-            _lockedJobsInterval = setInterval(function(){
+            _lockedJobsInterval = setInterval(function() {
                 self.emit(events.UNLOCK_LOCKED_JOBS);
             }, config.pollIntervals.unlockJobs);
 
             _logger.debug('starting generate instances process');
-            _generateInstancesInterval = setInterval(function(){
+            _generateInstancesInterval = setInterval(function() {
                 self.emit(events.GENERATE_INSTANCES);
             }, config.pollIntervals.generateInstances);
 
         };
 
-        self.stop = function(){
+        self.stop = function() {
             _logger.debug('stopping unlock jobs process');
             clearInterval(_lockedJobsInterval);
             _logger.debug('stopping generate instances process');
@@ -81,21 +81,37 @@ module.exports = (function() {
             });
         });
 
-        self.on(events.GENERATE_INSTANCES, function(){
+        self.on(events.GENERATE_INSTANCES, function() {
             _logger.debug('begin generate instances job');
             //TODO: how to handle locked jobs close to expiration
-            var url = format('{0}/jobs/?apiKey={1}&locked=false',
-                config.hotSauceHost,
-                config.apiKey);
 
-            _jobManager.getExpiringJobs(url, function(err, jobs){
-                if(err){
+            var baseDateTime = new Date().getTime();
+            _jobManager.getUnlockedJobs(url, function(err, jobs) {
+                if(err) {
                     _logger.error('error with generate instances job', err);
-                }
-                else if(!jobs || jobs.length == 0) {
+                } else if(!jobs || jobs.length == 0) {
                     _logger.info('no jobs found to work on');
                 } else {
                     _logger.debug(jobs);
+                    var regenerateEligibleJobs = [];
+                    for(var i = 0; i < results.length; i++) {
+                        var job = results[i].value;
+
+                        //assume instances are always needed
+                        var needsInstances = true;
+
+                        for(var j = 0; j < job.schedule.future_instances.length; j++) {
+                            var parsedDate = new Date(job.schedule.future_instances[j]);
+                            if(parsedDate.getTime() > baseDateTime) {
+                                needsInstances = false;
+                                break;
+                            }
+                        }
+
+                        if(needsInstances) {
+                            regenerateEligibleJobs.push(job);
+                        }
+                    }
                 }
                 _logger.debug('end generate instances jobs');
             });

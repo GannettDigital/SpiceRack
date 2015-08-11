@@ -88,12 +88,12 @@ module.exports = (function () {
                         return row.value;
                     });
                 }
-                afterGet(err, rows);
+                _eventHandler.sendEvent(_events.HANDLE_RESPONSE, afterGet, err, rows);
             });
         };
 
-        manager.getExpiringJobs = function(afterGet) {
-            //cb sorts values in the following order:
+        manager.getUnlockedJobs = function(afterGet) {
+            // cb sorts values in the following order:
             // null, false, true, Numbers ...
             // since unlocked jobs are defined as those that have never  been locked or
             // have locked=false, querying from null to true (but not inclusive_end) should suffice
@@ -104,14 +104,14 @@ module.exports = (function () {
                 .from('jobs', 'GetJobsMaintenance')
                 .range(startKey, endKey);
             var bucket = getOpenedBucket();
-            bucket.query(query, function(err, results){
+            bucket.query(query, function(err, results) {
                 var rows = null;
-                if(!err){
+                if(!err) {
                     rows = results.map(function(row){
                         return row.value;
                     });
                 }
-                afterGet(err, rows);
+                _eventHandler.sendEvent(_events.HANDLE_RESPONSE, afterGet, err, rows);
             });
         };
 
@@ -129,7 +129,9 @@ module.exports = (function () {
         };
 
         function addMetadataToJob(job){
-            job.locking = job.locking || {};
+            job.locking = job.locking || {
+                locked: false
+            };
 
             //add instance information
             var base = new Date();
@@ -262,6 +264,9 @@ module.exports = (function () {
 
             job.locking = lockInfo;
             job.lastModified = new Date();
+
+            //re-generate occurrences
+            addMetadataToJob(job);
 
             bucket.upsert(job.id, job, {cas: cas}, function(err){
                 bucket.unlock(job.id, cas, function(){
