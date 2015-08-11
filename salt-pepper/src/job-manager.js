@@ -74,7 +74,35 @@ module.exports = (function () {
         };
 
         manager.getLockedJobs = function(afterGet) {
-            var query = ViewQuery.from('jobs', 'Get');
+            var startKey = [true];
+            var endKey = {};
+
+            var query = ViewQuery
+                .from('jobs', 'GetJobsMaintenance')
+                .range(startKey, endKey);
+            var bucket = getOpenedBucket();
+            bucket.query(query, function(err, results){
+                var rows = null;
+                if(!err){
+                    rows = results.map(function(row){
+                        return row.value;
+                    });
+                }
+                afterGet(err, rows);
+            });
+        };
+
+        manager.getExpiringJobs = function(afterGet) {
+            //cb sorts values in the following order:
+            // null, false, true, Numbers ...
+            // since unlocked jobs are defined as those that have never  been locked or
+            // have locked=false, querying from null to true (but not inclusive_end) should suffice
+            var startKey = [null];
+            var endKey = [true];
+
+            var query = ViewQuery
+                .from('jobs', 'GetJobsMaintenance')
+                .range(startKey, endKey);
             var bucket = getOpenedBucket();
             bucket.query(query, function(err, results){
                 var rows = null;

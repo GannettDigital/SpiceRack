@@ -23,10 +23,11 @@ module.exports = (function() {
 
         function validateConfig(config){
             if(!config) throw new Error('config must be specified');
+            if(typeof(config) !== 'object') throw new Error('config must be an object');
             if(!config.pollIntervals) throw new Error('pollIntervals must be specified');
             if(typeof(config.pollIntervals) !== 'object') throw new Error('pollIntervals must be an object');
-            validatePollInterval(config.pollIntervals.generateInstances);
-            validatePollInterval(config.pollIntervals.unlockJobs);
+            validatePollInterval(config.pollIntervals.generateInstances, 'generateInstances');
+            validatePollInterval(config.pollIntervals.unlockJobs, 'unlockJobs');
 
             if(!config.logger) throw new Error('logger must be configured');
             if(typeof(config.logger) !== 'object') throw new Error('logger must be an object');
@@ -35,13 +36,13 @@ module.exports = (function() {
             if(typeof(config.couchbase) !== 'object') throw new Error('couchbase must be an object');
 
             if(!config.couchbase.cluster) throw new Error('couchbase.cluster must be specified');
-            if(!config.couchbase.bucket) throw new Error('couchbase.bucketmust be specified');
+            if(!config.couchbase.bucket) throw new Error('couchbase.bucket must be specified');
         }
 
-        function validatePollInterval(pollInterval){
-            if(!pollInterval) throw new Error('pollInterval must be specified');
-            if(typeof(pollInterval) !== 'number') throw new Error('pollInterval must be a number');
-            if(pollInterval <= 0) throw new Error('pollInterval must be greater than 0');
+        function validatePollInterval(pollInterval, name){
+            if(!pollInterval) throw new Error(format('{0} must be specified', name));
+            if(typeof(pollInterval) !== 'number') throw new Error(format('{0} must be a number', name));
+            if(pollInterval <= 0) throw new Error(format('{0} must be greater than 0', name));
         }
 
         self.start = function(){
@@ -87,7 +88,7 @@ module.exports = (function() {
                 config.hotSauceHost,
                 config.apiKey);
 
-            _jobsManager.getExpiringJobs(url, function(err, jobs){
+            _jobManager.getExpiringJobs(url, function(err, jobs){
                 if(err){
                     _logger.error('error with generate instances job', err);
                 }

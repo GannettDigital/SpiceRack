@@ -56,7 +56,7 @@ describe('chives tests', function() {
             new Chives(config);
         };
 
-        expect(doIt).to.throw('pollInterval must be specified');
+        expect(doIt).to.throw('generateInstances must be specified');
     });
 
     it('should throw error when pollInterval for generateInstances is not a number', function() {
@@ -69,7 +69,7 @@ describe('chives tests', function() {
             new Chives(config);
         };
 
-        expect(doIt).to.throw('pollInterval must be a number');
+        expect(doIt).to.throw('generateInstances must be a number');
     });
 
     it('should throw error when pollInterval for generateInstances is not a positive number', function() {
@@ -82,7 +82,7 @@ describe('chives tests', function() {
             new Chives(config);
         };
 
-        expect(doIt).to.throw('pollInterval must be greater than 0');
+        expect(doIt).to.throw('generateInstances must be greater than 0');
     });
 
     it('should throw error when pollInterval for unlockJobs is not specified', function() {
@@ -96,7 +96,7 @@ describe('chives tests', function() {
             new Chives(config);
         };
 
-        expect(doIt).to.throw('pollInterval must be specified');
+        expect(doIt).to.throw('unlockJobs must be specified');
     });
 
     it('should throw error when pollInterval for unlockJobs is not a number', function() {
@@ -110,7 +110,7 @@ describe('chives tests', function() {
             new Chives(config);
         };
 
-        expect(doIt).to.throw('pollInterval must be a number');
+        expect(doIt).to.throw('unlockJobs must be a number');
     });
 
     it('should throw error when pollInterval for unlockJobs is not a positive number', function() {
@@ -119,12 +119,12 @@ describe('chives tests', function() {
             var config = {
                 pollIntervals: {}
             };
-            config.pollIntervals.generateInstances = -10;
+            config.pollIntervals.generateInstances = 10;
             config.pollIntervals.unlockJobs = -10;
             new Chives(config);
         };
 
-        expect(doIt).to.throw('pollInterval must be greater than 0');
+        expect(doIt).to.throw('unlockJobs must be greater than 0');
     });
 
     it('should throw error when logger is not configured', function() {
@@ -156,38 +156,6 @@ describe('chives tests', function() {
         expect(doIt).to.throw('logger must be an object');
     });
 
-    it('should throw error when apiKey is not configured', function() {
-        var Chives = require('../../index.js');
-        var doIt = function() {
-            new Chives({
-                pollIntervals: {
-                    generateInstances: 1,
-                    unlockJobs: 1
-                },
-                logger: {},
-                hotSauceHost: 'some.host'
-            });
-        };
-
-        expect(doIt).to.throw('apiKey must be configured');
-    });
-
-    it('should throw error when hotSauceHost is not configured', function() {
-        var Chives = require('../../index.js');
-        var doIt = function() {
-            new Chives({
-                pollIntervals: {
-                    generateInstances: 1,
-                    unlockJobs: 1
-                },
-                logger: {},
-                apiKey: 'apiKey'
-            });
-        };
-
-        expect(doIt).to.throw('hotSauceHost must be configured');
-    });
-
     it('should not throw error when config is valid', function() {
         var Chives = require('../../index.js');
         var doIt = function() {
@@ -197,8 +165,13 @@ describe('chives tests', function() {
                     unlockJobs: 1
                 },
                 logger: {},
-                apiKey: 'apiKey',
-                hotSauceHost:'some.host'
+                couchbase: {
+                    bucket: {
+                        name: 'x',
+                        password: 'y'
+                    },
+                    cluster: []
+                }
             });
         };
 
@@ -209,14 +182,19 @@ describe('chives tests', function() {
         var Chives = require('../../index.js');
 
         var chives = new Chives({
-                pollIntervals: {
-                    generateInstances: 1,
-                    unlockJobs: 1
+            pollIntervals: {
+                generateInstances: 1,
+                unlockJobs: 1
+            },
+            logger: {},
+            couchbase: {
+                bucket: {
+                    name: 'x',
+                    password: 'y'
                 },
-                logger: {},
-                apiKey: 'apiKey',
-                hotSauceHost: 'some.host'
-            });
+                cluster: []
+            }
+        });
 
         chives.on('unlock-locked-jobs', function(){
            assert.ok(true);
@@ -236,8 +214,13 @@ describe('chives tests', function() {
                 unlockJobs: 1
             },
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket: {
+                    name: 'x',
+                    password: 'y'
+                },
+                cluster: []
+            }
         });
 
         chives.on('generate-instances', function(){
