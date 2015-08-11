@@ -27,6 +27,15 @@ describe('chives tests', function() {
         expect(doIt).to.throw('config must be specified');
     });
 
+    it('should throw error when config is not an object', function() {
+        var Chives = require('../../index.js');
+        var doIt = function() {
+            new Chives('text');
+        };
+
+        expect(doIt).to.throw('config must be an object');
+    });
+
     it('should throw error when pollInterval is not configured', function() {
         var Chives = require('../../index.js');
         var doIt = function() {
@@ -155,6 +164,73 @@ describe('chives tests', function() {
 
         expect(doIt).to.throw('logger must be an object');
     });
+
+    it('should throw error when couchbase is not configured', function(){
+        var Chives = require('../../index.js');
+        var doIt = function(){
+            new Chives({
+                pollIntervals: {
+                    generateInstances: 1,
+                    unlockJobs: 1
+                },
+                logger: {}
+            });
+        };
+
+        expect(doIt).throw('couchbase must be specified');
+    });
+
+    it('should throw error when couchbase is not an object', function(){
+        var Chives = require('../../index.js');
+        var doIt = function(){
+            new Chives({
+                pollIntervals: {
+                    generateInstances: 1,
+                    unlockJobs: 1
+                },
+                logger: {},
+                couchbase: 'X'
+            });
+        };
+
+        expect(doIt).throw('couchbase must be an object');
+    });
+
+    it('should throw error when couchbase.cluster is not configured', function(){
+        var Chives = require('../../index.js');
+        var doIt = function(){
+            new Chives({
+                pollIntervals: {
+                    generateInstances: 1,
+                    unlockJobs: 1
+                },
+                logger: {},
+                couchbase:{
+                }
+            });
+        };
+
+        expect(doIt).throw('couchbase.cluster must be specified');
+    });
+
+    it('should throw error when couchbase.bucket is not configured', function(){
+        var Chives = require('../../index.js');
+        var doIt = function(){
+            new Chives({
+                pollIntervals: {
+                    generateInstances: 1,
+                    unlockJobs: 1
+                },
+                logger: {},
+                couchbase:{
+                    cluster: []
+                }
+            });
+        };
+
+        expect(doIt).throw('couchbase.bucket must be specified');
+    });
+
 
     it('should not throw error when config is valid', function() {
         var Chives = require('../../index.js');
