@@ -96,6 +96,9 @@ describe('job-manager: tests', function() {
 
         var lockedJob = {
             id: 1,
+            schedule: {
+                cron: '* * * * * *'
+            },
             jobData: {},
             locking: {
                 lockedOn: new Date(),
