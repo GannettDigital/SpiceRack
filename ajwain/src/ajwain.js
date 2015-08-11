@@ -95,6 +95,7 @@ module.exports = (function(){
 
         function validateConfig(config){
             if(!config) throw new Error('config must be specified');
+            if(typeof(config) !== 'object') throw new Error('config must be an object');
             if(!config.pollInterval) throw new Error('pollInterval must be specified');
             if(typeof(config.pollInterval) !== 'number') throw new Error('pollInterval must be a number');
             if(config.pollInterval <= 0) throw new Error('pollInterval must be greater than 0');
@@ -106,7 +107,7 @@ module.exports = (function(){
             if(typeof(config.couchbase) !== 'object') throw new Error('couchbase must be an object');
 
             if(!config.couchbase.cluster) throw new Error('couchbase.cluster must be specified');
-            if(!config.couchbase.bucket) throw new Error('couchbase.bucketmust be specified');
+            if(!config.couchbase.bucket) throw new Error('couchbase.bucket must be specified');
         }
 
         _eventHandler.watchEvent(events.GET_JOB, getJobHandler);
