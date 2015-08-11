@@ -20,5 +20,34 @@ npm run cover
 
 ## Usage
 ```javascript
-//TODO
+var Chives = require('./chives/index.js');
+var Logger = require('./salt-pepper/index.js').Logger;
+var os = require('os');
+
+var config = {
+    couchbase: {
+        cluster: ['http://couchbase.host:8091'],
+        bucket: {
+            name: 'bucket_name',
+            password: 'p@$$w0rd'
+        }
+    },
+    logger: {
+        console: {enabled: true, options: {level: 'debug'}},
+        file: {enabled: false, options: {level: 'debug', filename: "chives.log"}}
+    },
+    pollIntervals:{
+        generateInstances: 50000,
+        unlockJobs: 2000
+    }
+};
+
+var chives = new Chives(config);
+
+chives.start();
+
+setTimeout(function(){
+    chives.stop();
+}, 60000);
+
 ```

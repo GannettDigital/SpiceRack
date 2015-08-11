@@ -150,6 +150,7 @@ Index of all jobs stored in couchbase
     "description": "desc",
     "jobData": {},
     "schedule": {
+        "expirationThreshold": 20000,
         "cron": "*/12 52 * * * *",
         "future_instances": [
             "2015-08-03T19:52:00.000Z",
@@ -184,6 +185,7 @@ Create/Upload a job
     "description": "desc",
     "jobData": {},
     "schedule": {
+        "expirationThreshold": 20000,
         "cron": "*/12 52 * * * *"
     },
     "locking": {}

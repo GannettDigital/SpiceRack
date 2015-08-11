@@ -196,8 +196,8 @@ describe('chives tests', function() {
             }
         });
 
-        chives.on('unlock-locked-jobs', function(){
-           assert.ok(true);
+        chives.on('unlock-locked-jobs', function() {
+            assert.ok(true);
             done();
             chives.stop();
         });
@@ -223,7 +223,7 @@ describe('chives tests', function() {
             }
         });
 
-        chives.on('generate-instances', function(){
+        chives.on('generate-instances', function() {
             assert.ok(true);
             done();
             chives.stop();

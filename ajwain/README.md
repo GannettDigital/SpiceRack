@@ -26,13 +26,19 @@ var Logger = require('salt-pepper').Logger;
 var os = require('os');
 
 var config = {
-    hotSauceHost: 'http://localhost:3000/api/',
-    apiKey: 'worker-XXXXX',
     pollInterval: 1000, //time to poll in ms
+    couchbase: {
+        cluster: ['http://couchbase.host:8091'],
+        bucket: {
+            name: 'bucket_name',
+            password: 'p@$$w0rd'
+        }
+    },
     logger: {
         console: {enabled: true, options: {level: 'debug'}},
         file: {enabled: false, options: {level: 'debug', filename: "ajwain.log"}}
     }
+    
 }
 
 var ajwain = new Ajwain(config);
