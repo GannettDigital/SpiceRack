@@ -54,6 +54,18 @@ describe('event-handler tests', function() {
         eventHandler.sendEvent('unknown event', 'arg1', 'arg2');
     });
 
+    it('should return an array of registered listeners in the listeners method', function(){
+        var EventHandler = require('../../src/event-handler.js');
+        var eventHandler = new EventHandler({
+            logger: {}
+        });
+
+        var eventType = 'some-event';
+        eventHandler.watchEvent(eventType, function(){});
+
+        expect(eventHandler.listeners(eventType)).to.be.a('array');
+    });
+
     after(function() {
         mockery.disable();
     });

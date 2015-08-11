@@ -26,8 +26,14 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
+
         });
 
         var options = {
@@ -44,12 +50,31 @@ describe('ajwain tests', function() {
         var mockRequest = function(){};
         mockery.registerMock('request', mockRequest);
 
+        var mockSaltPepper = {
+            JobManager: function(){},
+            Logger: function(){},
+            EventHandler: function() {
+                return {
+                    watchEvent: function(eventType) {
+                        expect(eventType).to.eql('get-job');
+                        done();
+                    }
+                }
+            }
+        };
+        mockery.registerMock('salt-pepper', mockSaltPepper);
+
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -57,29 +82,38 @@ describe('ajwain tests', function() {
             caller: 'tester'
         };
         ajwain.registerJobHandler(options, function(){});
-
-        var called = false;
-        ajwain.on('get-job', function(){
-            assert.ok(true);
-            //prevent multiple done calls.
-            // ajwain emits the get-job periodically & this will keep firing
-            if(!called) {
-                called = true;
-                done();
-            }
-        });
     });
 
     it('should emit a job-complete event when completeJob method is called', function(done){
         var mockRequest = function(){};
         mockery.registerMock('request', mockRequest);
 
+        var mockSaltPepper = {
+            JobManager: function(){},
+            Logger: function(){},
+            EventHandler: function() {
+                return {
+                    watchEvent: function(){},
+                    sendEvent: function(eventType) {
+                        expect(eventType).to.eql('job-complete');
+                        done();
+                    }
+                }
+            }
+        };
+        mockery.registerMock('salt-pepper', mockSaltPepper);
+
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var callerOptions = {
@@ -89,13 +123,6 @@ describe('ajwain tests', function() {
         var completedJob = {
             id: 1
         };
-
-        ajwain.on('job-complete', function(job, options){
-            expect(job).to.eql(completedJob);
-            expect(options).to.eql(callerOptions);
-            done();
-        });
-
         ajwain.completeJob(completedJob, callerOptions);
 
     });
@@ -105,8 +132,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         ajwain.registerErrorHandler(function(err){
@@ -129,8 +161,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -205,30 +242,30 @@ describe('ajwain tests', function() {
         expect(doIt).throw('logger must be an object');
     });
 
-    it('should throw error when apiKey is not configured', function(){
+    it('should throw error when couchbase is not configured', function(){
         var Ajwain = require('../../src/ajwain.js');
         var doIt = function(){
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
-                hotSauceHost: 'some.host'
             });
         };
 
-        expect(doIt).throw('apiKey must be configured');
+        expect(doIt).throw('couchbase must be specified');
     });
 
-    it('should throw error when hotSauceHost is not configured', function(){
+    it('should throw error when couchbase.cluster is not configured', function(){
         var Ajwain = require('../../src/ajwain.js');
         var doIt = function(){
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
-                apiKey: 'apiKey'
+                couchbase:{
+                }
             });
         };
 
-        expect(doIt).throw('hotSauceHost must be configured');
+        expect(doIt).throw('couchbase.cluster must be specified');
     });
 
     it('should throw error when options.caller is not set', function(){
@@ -236,8 +273,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {};
@@ -253,8 +295,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -272,8 +319,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -292,8 +344,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -312,8 +369,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {

@@ -48,8 +48,41 @@ module.exports = (function(){
             clearInterval(_interval);
         };
 
+        //for test purposes only
+        self.listeners = function(eventType){
+            return _eventHandler.listeners(eventType);
+        };
+
         function emitError(err){
             _eventHandler.sendEvent(events.JOB_ERROR, err);
+        }
+
+        function jobCompletionHandler(job, options) {
+            _jobManager.unlock(job.id, options.caller, function(err) {
+                if(err) {
+                    _logger.error('error unlocking job: ' + job.id, err);
+                }
+            });
+        }
+
+        function getJobHandler(options) {
+            _jobManager.findAvailableJob(options.jobCodes, options.caller, function(err, job) {
+                if(err) {
+                    emitError(err);
+                } else if(job) {
+                    _logger.info('received job: ' + job.id);
+                    var jobToProcess = {
+                        id: job.id,
+                        code: job.code,
+                        jobData: job.jobData,
+                        scheduledRun: job.triggeringOccurrence
+
+                    };
+                    _eventHandler.sendEvent(events.JOB_FOUND, jobToProcess);
+                } else {
+                    //no job for now. nothing to do
+                }
+            });
         }
 
         function validateRegisterParameters(options, handlerFunction){
@@ -76,34 +109,9 @@ module.exports = (function(){
             if(!config.couchbase.bucket) throw new Error('couchbase.bucketmust be specified');
         }
 
-        _eventHandler.watchEvent(events.GET_JOB, function(options){
+        _eventHandler.watchEvent(events.GET_JOB, getJobHandler);
 
-            _jobManager.findAvailableJob(options.jobCodes, options.caller, function(err, job){
-                if(err){
-                    emitError(err);
-                } else if (job){
-                    _logger.info('received job: ' + job.id);
-                    var jobToProcess = {
-                        id: job.id,
-                        code: job.code,
-                        jobData: job.jobData,
-                        scheduledRun: job.triggeringOccurrence
-
-                    };
-                    _eventHandler.sendEvent(events.JOB_FOUND, jobToProcess);
-                } else {
-                    //no job for now. nothing to do
-                }
-            });
-        });
-
-        _eventHandler.watchEvent(events.JOB_COMPLETE, function(job, options){
-            _jobManager.unlock(job.id, options.caller, function(err) {
-                if(err) {
-                    _logger.error('error unlocking job: ' + job.id, err);
-                }
-            });
-        });
+        _eventHandler.watchEvent(events.JOB_COMPLETE, jobCompletionHandler);
 
         return self;
     };

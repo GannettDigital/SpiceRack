@@ -74,7 +74,7 @@ module.exports = (function () {
         };
 
         manager.getLockedJobs = function(afterGet) {
-            var query = ViewQuery.from('jobs', 'GetAllJobs');
+            var query = ViewQuery.from('jobs', 'Get');
             var bucket = getOpenedBucket();
             bucket.query(query, function(err, results){
                 var rows = null;

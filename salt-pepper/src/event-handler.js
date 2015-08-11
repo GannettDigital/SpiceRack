@@ -23,6 +23,10 @@ module.exports = (function () {
                 _emitter.emit.apply(_emitter, arguments)
             }
         };
+
+        self.listeners = function(eventType){
+            return _emitter.listeners(eventType);
+        };
         return self;
     };
 
