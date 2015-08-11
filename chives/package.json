@@ -1,7 +1,7 @@
 {
-  "name": "ajwain",
-  "version": "1.0.1",
-  "description": "SDK to provide scheduled job execution functionality to node applications",
+  "name": "chives",
+  "version": "1.0.0",
+  "description": "Nodejs backend process to monitor hot-sauce jobs",
   "main": "index.js",
   "scripts": {
     "test": "npm run unit-test",
@@ -12,31 +12,32 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GannettDigital/SpiceRack.git"
+    "url": "git@github.com:GannettDigital/SpiceRack.git"
   },
   "keywords": [
+    "nodejs",
     "scheduling",
+    "jobs",
+    "salt-pepper",
     "hot-sauce",
-    "spice-rack",
-    "scheduling",
-    "sdk",
-    "job"
+    "ajwain",
+    "spicerack"
   ],
-  "author": "Devansh Dhutia",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/GannettDigital/SpiceRack/issues"
-  },
-  "homepage": "https://github.com/GannettDigital/SpiceRack/tree/master/ajwain",
-  "dependencies": {
-    "request": "^2.60.0",
-    "salt-pepper": "^1.1.4",
-    "string-format": "^0.5.0"
-  },
   "devDependencies": {
     "chai": "^3.2.0",
     "coveralls": "^2.11.3",
     "mocha": "^2.2.5",
     "mockery": "^1.4.0"
+  },
+  "author": "Devansh Dhutia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GannettDigital/SpiceRack/issues"
+  },
+  "homepage": "https://github.com/GannettDigital/SpiceRack",
+  "dependencies": {
+    "request": "^2.60.0",
+    "salt-pepper": "^1.1.4",
+    "string-format": "^0.5.0"
   }
 }

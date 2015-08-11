@@ -30,23 +30,21 @@ describe('job-manager: tests', function() {
             }
         };
 
-        var mockCouchbase = require('../mocks/mock-couchbase-error.js');
+        var mockCouchbase = require('./mocks/mock-couchbase-error.js');
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var mockLogger = {
-            Logger: function() {
-                return {
-                    error: function(message, err) {
-                        expect(message).to.eql('Bucket Error: ');
-                        expect(err).to.not.be.null;
-                        done();
-                    }
+        var mockLogger = function() {
+            return {
+                error: function(message, err) {
+                    expect(message).to.eql('Bucket Error: ');
+                    expect(err).to.not.be.null;
+                    done();
                 }
             }
         };
-        mockery.registerMock('salt-pepper', mockLogger);
+        mockery.registerMock('./logger.js', mockLogger);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.getJob(1, function(){});
@@ -64,22 +62,20 @@ describe('job-manager: tests', function() {
             }
         };
 
-        var mockCouchbase = require('../mocks/mock-couchbase.js');
+        var mockCouchbase = require('./mocks/mock-couchbase.js');
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var mockLogger = {
-            Logger: function() {
-                return {
-                    info: function(message) {
-                        expect(message).to.eql('Connected to bucket');
-                        done();
-                    }
+        var mockLogger = function() {
+            return {
+                info: function(message) {
+                    expect(message).to.eql('Connected to bucket');
+                    done();
                 }
             }
         };
-        mockery.registerMock('salt-pepper', mockLogger);
+        mockery.registerMock('./logger.js', mockLogger);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.getJob(1, function(){});
@@ -100,6 +96,9 @@ describe('job-manager: tests', function() {
 
         var lockedJob = {
             id: 1,
+            schedule: {
+                cron: '* * * * * *'
+            },
             jobData: {},
             locking: {
                 lockedOn: new Date(),
@@ -138,7 +137,7 @@ describe('job-manager: tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.unlock(1, 'tester', function(){

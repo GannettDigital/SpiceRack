@@ -57,7 +57,7 @@ describe('job-manager: unlock tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.unlock(1, 'tester', function(err, result) {
@@ -112,9 +112,9 @@ describe('job-manager: unlock tests', function() {
         };
 
         mockery.registerMock('couchbase', mockCouchbase);
-        mockery.registerMock('../lib/event-handler.js', mockEventHandler);
+        mockery.registerMock('./event-handler.js', mockEventHandler);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.unlock(1, 'tester', function(err, result) {
@@ -181,9 +181,9 @@ describe('job-manager: unlock tests', function() {
         };
 
         mockery.registerMock('couchbase', mockCouchbase);
-        mockery.registerMock('../lib/event-handler.js', mockEventHandler);
+        mockery.registerMock('./event-handler.js', mockEventHandler);
 
-        var JobManager = require('../../../src/managers/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.unlock(lockedJob.id, 'tester', function(err, result) {});

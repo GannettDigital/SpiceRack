@@ -11,11 +11,8 @@ describe('ajwain tests', function() {
     });
 
     beforeEach(function() {
-        mockery.resetCache();
-    });
-
-    afterEach(function() {
         mockery.deregisterAll();
+        mockery.resetCache();
     });
 
     it('should register a job-found listener on initialize', function(done){
@@ -26,8 +23,14 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
+
         });
 
         var options = {
@@ -37,6 +40,7 @@ describe('ajwain tests', function() {
         ajwain.registerJobHandler(options, function(){});
 
         expect(ajwain.listeners('job-found').length).to.eql(1);
+        ajwain.shutdown();
         done();
     });
 
@@ -44,12 +48,30 @@ describe('ajwain tests', function() {
         var mockRequest = function(){};
         mockery.registerMock('request', mockRequest);
 
+        var mockEventHandler = function() {
+            return {
+                sendEvent: function(){},
+                watchEvent: function(eventType) {
+                    if(eventType === 'get-job'){
+                        assert.ok(true);
+                        done();
+                    }
+                }
+            }
+        };
+        mockery.registerMock('./src/event-handler.js', mockEventHandler);
+
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -57,29 +79,35 @@ describe('ajwain tests', function() {
             caller: 'tester'
         };
         ajwain.registerJobHandler(options, function(){});
-
-        var called = false;
-        ajwain.on('get-job', function(){
-            assert.ok(true);
-            //prevent multiple done calls.
-            // ajwain emits the get-job periodically & this will keep firing
-            if(!called) {
-                called = true;
-                done();
-            }
-        });
     });
 
     it('should emit a job-complete event when completeJob method is called', function(done){
         var mockRequest = function(){};
         mockery.registerMock('request', mockRequest);
 
+        var mockEventHandler =  function() {
+            return {
+                watchEvent: function() {
+                },
+                sendEvent: function(eventType) {
+                    expect(eventType).to.eql('job-complete');
+                    done();
+                }
+            }
+        };
+        mockery.registerMock('./src/event-handler.js', mockEventHandler);
+
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var callerOptions = {
@@ -89,65 +117,75 @@ describe('ajwain tests', function() {
         var completedJob = {
             id: 1
         };
-
-        ajwain.on('job-complete', function(job, options){
-            expect(job).to.eql(completedJob);
-            expect(options).to.eql(callerOptions);
-            done();
-        });
-
         ajwain.completeJob(completedJob, callerOptions);
 
     });
 
-    it('should emit a job-error event when an error handler is registered', function(done){
+    it('should register a job-error handler when registerErrorHandler is called', function(done){
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
-            pollInterval: 200,
+            pollInterval: 500,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         ajwain.registerErrorHandler(function(err){
-            expect(err).to.not.be.null;
-            ajwain.shutdown();
-            done();
-
+            //do something
         });
 
         //lack of config & options should trigger an error
-        ajwain.registerJobHandler({jobCodes: ['one'], caller: 'tester'}, function(){});
+        expect(ajwain.listeners('job-error')).to.have.length(1);
+        done();
 
     });
 
     it('should trigger registered handler when a job is found', function(done){
         var mockRequest = function(){};
         mockery.registerMock('request', mockRequest);
+        var options = {
+            jobCodes: ['one'],
+            caller: 'tester'
+        };
+
+        var foundJob = {
+            id: 1,
+            code: options.jobCodes[0],
+            jobData: {}
+        };
+        var mockJobManager = function(){
+            return {
+                findAvailableJob: function(jobCodes, caller, afterGet){
+                    afterGet(null, foundJob);
+                }
+            }
+        };
+        //mock just the job manager. this is how its called from within salt-pepper
+        mockery.registerMock('./src/job-manager.js', mockJobManager);
 
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
-            apiKey: 'key',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
-
-        var options = {
-            jobCodes: ['one'],
-            caller: 'tester'
-        };
-        var foundJob = {
-            id: 1
-        };
 
         ajwain.registerJobHandler(options, function(job){
-            expect(job).to.eql(foundJob);
+            expect(foundJob.id).to.eql(job.id);
+            ajwain.shutdown();
             done();
         });
-
-        ajwain.emit('job-found', foundJob);
-
     });
 
     it('should throw error when pollInterval is not configured', function(){
@@ -205,39 +243,99 @@ describe('ajwain tests', function() {
         expect(doIt).throw('logger must be an object');
     });
 
-    it('should throw error when apiKey is not configured', function(){
+    it('should throw error when couchbase is not configured', function(){
         var Ajwain = require('../../src/ajwain.js');
         var doIt = function(){
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
-                hotSauceHost: 'some.host'
             });
         };
 
-        expect(doIt).throw('apiKey must be configured');
+        expect(doIt).throw('couchbase must be specified');
     });
 
-    it('should throw error when hotSauceHost is not configured', function(){
+    it('should throw error when couchbase.cluster is not configured', function(){
         var Ajwain = require('../../src/ajwain.js');
         var doIt = function(){
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
-                apiKey: 'apiKey'
+                couchbase:{
+                }
             });
         };
 
-        expect(doIt).throw('hotSauceHost must be configured');
+        expect(doIt).throw('couchbase.cluster must be specified');
     });
 
-    it('should throw error when options.caller is not set', function(){
+    it('should throw error when config is not an object', function(){
+        var Ajwain = require('../../src/ajwain.js');
+        var doIt = function(){
+            new Ajwain('text');
+        };
+
+        expect(doIt).throw('config must be an object');
+    });
+
+    it('should throw error when couchbase.bucket is not an specified', function(){
+        var Ajwain = require('../../src/ajwain.js');
+        var doIt = function(){
+            new Ajwain({
+                pollInterval: 1,
+                logger: {},
+                couchbase:{
+                    cluster: []
+                }
+            });
+        };
+
+        expect(doIt).throw('couchbase.bucket must be specified');
+    });
+
+    it('should throw error when couchbase is not an object', function(){
+        var Ajwain = require('../../src/ajwain.js');
+        var doIt = function(){
+            new Ajwain({
+                pollInterval: 1,
+                logger: {},
+                couchbase:'test'
+            });
+        };
+
+        expect(doIt).throw('couchbase must be an object');
+    });
+
+    it('should throw error when config is not passed in', function(){
+        var Ajwain = require('../../src/ajwain.js');
+        var doIt = function(){
+            new Ajwain();
+        };
+
+        expect(doIt).throw('config must be specified');
+    });
+
+    it('should throw error when config is not an object', function(){
+        var Ajwain = require('../../src/ajwain.js');
+        var doIt = function(){
+            new Ajwain('text');
+        };
+
+        expect(doIt).throw('config must be an object');
+    });
+
+    it('should throw error when options.caller is not set', function(done){
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {};
@@ -245,7 +343,8 @@ describe('ajwain tests', function() {
             ajwain.registerJobHandler(options, function(job){});
         };
 
-        expect(doIt).throw('caller must be specified in options');
+        expect(doIt).to.throw('caller must be specified in options');
+        done();
     });
 
     it('should throw error when options.jobCodes is not set', function(){
@@ -253,8 +352,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -264,7 +368,7 @@ describe('ajwain tests', function() {
             ajwain.registerJobHandler(options, function(job){});
         };
 
-        expect(doIt).throw('jobCodes must be specified in options');
+        expect(doIt).to.throw('jobCodes must be specified in options');
     });
 
     it('should throw error when options.caller is not an array', function(){
@@ -272,8 +376,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -284,7 +393,7 @@ describe('ajwain tests', function() {
             ajwain.registerJobHandler(options, function(job){});
         };
 
-        expect(doIt).throw('jobCodes must be an array');
+        expect(doIt).to.throw('jobCodes must be an array');
     });
 
     it('should throw error when options.jobCodes is empty', function(){
@@ -292,8 +401,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -304,7 +418,7 @@ describe('ajwain tests', function() {
             ajwain.registerJobHandler(options, function(job){});
         };
 
-        expect(doIt).throw('at least one jobCode must be specified');
+        expect(doIt).to.throw('at least one jobCode must be specified');
     });
 
     it('should throw error when handler is not a function', function(){
@@ -312,8 +426,13 @@ describe('ajwain tests', function() {
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
-            apiKey: 'apiKey',
-            hotSauceHost: 'some.host'
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
         });
 
         var options = {
@@ -324,7 +443,7 @@ describe('ajwain tests', function() {
             ajwain.registerJobHandler(options, 'not a function');
         };
 
-        expect(doIt).throw('handler must be a function');
+        expect(doIt).to.throw('handler must be a function');
     });
 
     after(function() {

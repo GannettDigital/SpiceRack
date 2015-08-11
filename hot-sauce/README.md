@@ -23,7 +23,7 @@ npm run cover
 This module can be incorporated into an existing application with applicable start/stop commands
 
 ```javascript
-var HotSauce = require('hot-sauce').Application;
+var HotSauce = require('hot-sauce');
 
 var config = {
     port: 3000,
@@ -48,7 +48,7 @@ hotSauce.start();
 ## Usage - subapp in existing app
 This module can be incorporated into an existing application as a sub-app
 ```javascript
-var HotSauce = require('./hot-sauce/index.js');
+var HotSauce = require('hot-sauce');
 
 var config = {
     port: 3000,
@@ -125,6 +125,16 @@ function (doc, meta) {
       }
     } 
   }
+}
+```
+
+#### GetJobsMaintenance
+```javascript
+function (doc, meta) {
+  var key = [];
+  key.push(doc.locking ? doc.locking.locked : false);
+  key.push(doc.id);
+  emit(key, doc);
 }
 ```
 

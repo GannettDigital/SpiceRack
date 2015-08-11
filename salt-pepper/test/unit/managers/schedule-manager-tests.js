@@ -26,7 +26,7 @@ describe('schedule-manager: get instances tests', function(){
 
         mockery.registerMock('./../lib/logger.js', mockLogger);
 
-        var ScheduleManager = require('../../../src/managers/schedule-manager.js');
+        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         //daily at midnight
@@ -68,7 +68,7 @@ describe('schedule-manager: get instances tests', function(){
         };
 
         mockery.registerMock('./../lib/logger.js', mockLogger);
-        var ScheduleManager = require('../../../src/managers/schedule-manager.js');
+        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         //without any bounds, the endDate is infinite
@@ -78,14 +78,12 @@ describe('schedule-manager: get instances tests', function(){
     });
 
     it('should log error when the underlying cron-parser library throws an error', function(done){
-        var mockLogger = {
-            Logger: function() {
-                return {
-                    error: function(message, err) {
-                        expect(message).to.eql('Unable to process cron pattern: @hourly');
-                        expect(err).to.not.be.null;
-                        done();
-                    }
+        var mockLogger = function() {
+            return {
+                error: function(message, err) {
+                    expect(message).to.eql('Unable to process cron pattern: @hourly');
+                    expect(err).to.not.be.null;
+                    done();
                 }
             }
         };
@@ -94,10 +92,10 @@ describe('schedule-manager: get instances tests', function(){
             parseExpression: function(){ throw new Error('oops');}
         };
 
-        mockery.registerMock('salt-pepper', mockLogger);
+        mockery.registerMock('./logger.js', mockLogger);
         mockery.registerMock('cron-parser', mockParser);
 
-        var ScheduleManager = require('../../../src/managers/schedule-manager.js');
+        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         manager.generateFutureInstances('@hourly');
@@ -118,7 +116,7 @@ describe('schedule-manager: get instances tests', function(){
         mockery.registerMock('./../lib/logger.js', mockLogger);
         mockery.registerMock('cron-parser', mockParser);
 
-        var ScheduleManager = require('../../../src/managers/schedule-manager.js');
+        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         var results = manager.generateFutureInstances('@hourly');
@@ -135,7 +133,7 @@ describe('schedule-manager: get instances tests', function(){
 
         mockery.registerMock('./../lib/logger.js', mockLogger);
 
-        var ScheduleManager = require('../../../src/managers/schedule-manager.js');
+        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         var now = new Date();

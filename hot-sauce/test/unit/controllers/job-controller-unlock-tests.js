@@ -21,12 +21,14 @@ describe('job-controller: unlock tests', function(){
 
     it('should call next() with status 400 when body fails validation', function(done){
         var id = 1;
-        var mockManager = function(){
-            return {
-                unlock: function(job, callback){
-                    assert.fail();
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    unlock: function(job, callback) {
+                        assert.fail();
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {
@@ -54,7 +56,7 @@ describe('job-controller: unlock tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -67,13 +69,15 @@ describe('job-controller: unlock tests', function(){
 
     it('should call manager.unlock when request is valid', function(done){
         var id = 1;
-        var mockManager = function(){
-            return {
-                unlock: function(job, callback){
-                    assert.ok(true);
-                    done();
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    unlock: function(job, callback) {
+                        assert.ok(true);
+                        done();
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {
@@ -104,7 +108,7 @@ describe('job-controller: unlock tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -113,12 +117,14 @@ describe('job-controller: unlock tests', function(){
     });
 
     it('should call the json handler of the response when unlock is successful', function(done){
-        var mockManager = function(){
-            return {
-                unlock: function(id, caller, callback){
-                    callback(null, {id: id});
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    unlock: function(id, caller, callback) {
+                        callback(null, {id: id});
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {
@@ -150,7 +156,7 @@ describe('job-controller: unlock tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -161,13 +167,15 @@ describe('job-controller: unlock tests', function(){
     });
 
     it('should call next with err when unlock error occurfs', function(done){
-        var mockManager = function(){
-            return {
-                unlock: function(id, caller, callback){
-                    var err = new Error('unlock error');
-                    callback(err, null);
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    unlock: function(id, caller, callback) {
+                        var err = new Error('unlock error');
+                        callback(err, null);
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {};
@@ -194,7 +202,7 @@ describe('job-controller: unlock tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
@@ -206,12 +214,14 @@ describe('job-controller: unlock tests', function(){
     });
 
     it('should call json handler with 404 when invalid job is passed to unlock', function(done){
-        var mockManager = function(){
-            return {
-                unlock: function(id, caller, callback){
-                    callback(null, null);
+        var mockSaltPepper = {
+            JobManager: function() {
+                return {
+                    unlock: function(id, caller, callback) {
+                        callback(null, null);
+                    }
                 }
-            };
+            }
         };
 
         var mockResponse = {
@@ -248,7 +258,7 @@ describe('job-controller: unlock tests', function(){
             }
         };
 
-        mockery.registerMock('../../managers/job-manager.js', mockManager);
+        mockery.registerMock('salt-pepper', mockSaltPepper);
 
         var JobController = require('../../../src/api/controllers/job.js');
         var controller = new JobController({});
