@@ -45,32 +45,12 @@ module.exports = (function() {
         }
 
         function validatePollInterval(pollInterval, name) {
-            if(!pollInterval) throw new Error(format('{0} must be specified', name));
+            if(pollInterval === null || pollInterval === undefined) throw new Error(format('{0} must be specified', name));
             if(typeof(pollInterval) !== 'number') throw new Error(format('{0} must be a number', name));
-            if(pollInterval <= 0) throw new Error(format('{0} must be greater than 0', name));
+            if(pollInterval < 0) throw new Error(format('{0} 0 or greater', name));
         }
 
-        self.start = function() {
-            _logger.debug('starting unlock jobs process');
-            _lockedJobsInterval = setInterval(function() {
-                self.emit(events.UNLOCK_LOCKED_JOBS);
-            }, config.pollIntervals.unlockJobs);
-
-            _logger.debug('starting generate instances process');
-            _generateInstancesInterval = setInterval(function() {
-                self.emit(events.GENERATE_INSTANCES);
-            }, config.pollIntervals.generateInstances);
-
-        };
-
-        self.stop = function() {
-            _logger.debug('stopping unlock jobs process');
-            clearInterval(_lockedJobsInterval);
-            _logger.debug('stopping generate instances process');
-            clearInterval(_generateInstancesInterval);
-        };
-
-        self.on(events.UNLOCK_LOCKED_JOBS, function() {
+        function unlockLockedJobsHandler(){
             _logger.debug('begin unlock jobs');
 
             _jobManager.getLockedJobs(function(err, jobs) {
@@ -84,7 +64,54 @@ module.exports = (function() {
                 }
                 _logger.debug('end unlock jobs');
             });
-        });
+        }
+
+        function generateInstancesHandler() {
+            _logger.debug('begin generate instances job');
+            //TODO: how to handle locked jobs close to expiration
+
+            var baseDateTime = new Date().getTime();
+            _jobManager.getUnlockedJobs(function(err, jobs) {
+                if(err) {
+                    _logger.error('error with generate instances job', err);
+                } else if(!jobs || jobs.length == 0) {
+                    _logger.info('no jobs found to work on');
+                } else {
+                    self.emit(events.PROCESS_GENERATE_INSTANCES, baseDateTime, jobs);
+                }
+                _logger.debug('end generate instances jobs');
+            });
+        }
+
+        self.start = function() {
+            if(config.pollIntervals.unlockJobs > 0) {
+                self.on(events.UNLOCK_LOCKED_JOBS, unlockLockedJobsHandler);
+
+                _lockedJobsInterval = setInterval(function() {
+                    _logger.debug('starting unlock jobs process');
+                    self.emit(events.UNLOCK_LOCKED_JOBS);
+                }, config.pollIntervals.unlockJobs);
+            }
+
+            if(config.pollIntervals.generateInstances > 0) {
+                self.on(events.GENERATE_INSTANCES, generateInstancesHandler);
+                _generateInstancesInterval = setInterval(function() {
+                    _logger.debug('starting generate instances process');
+                    self.emit(events.GENERATE_INSTANCES);
+                }, config.pollIntervals.generateInstances);
+            }
+        };
+
+        self.stop = function() {
+            if(_lockedJobsInterval) {
+                _logger.debug('stopping unlock jobs process');
+                clearInterval(_lockedJobsInterval);
+            }
+            if(_generateInstancesInterval) {
+                _logger.debug('stopping generate instances process');
+                clearInterval(_generateInstancesInterval);
+            }
+        };
 
         self.on(events.PROCESS_UNLOCKS, function(jobs) {
             var baseDateTime = new Date().getTime();
@@ -114,22 +141,7 @@ module.exports = (function() {
             }
         });
 
-        self.on(events.GENERATE_INSTANCES, function() {
-            _logger.debug('begin generate instances job');
-            //TODO: how to handle locked jobs close to expiration
 
-            var baseDateTime = new Date().getTime();
-            _jobManager.getUnlockedJobs(function(err, jobs) {
-                if(err) {
-                    _logger.error('error with generate instances job', err);
-                } else if(!jobs || jobs.length == 0) {
-                    _logger.info('no jobs found to work on');
-                } else {
-                    self.emit(events.PROCESS_GENERATE_INSTANCES, baseDateTime, jobs);
-                }
-                _logger.debug('end generate instances jobs');
-            });
-        });
 
         self.on(events.PROCESS_GENERATE_INSTANCES, function(baseDateTime, jobs){
             for(var i = 0; i < jobs.length; i++) {
