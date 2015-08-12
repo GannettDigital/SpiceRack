@@ -36,6 +36,3 @@ For more documentation: https://github.com/GannettDigital/SpiceRack/tree/master/
 - Backend application module to unlock expired jobs and generate further instances of scheduled jobs
 
 For more documentation: https://github.com/GannettDigital/SpiceRack/tree/master/chives
-
-
-## Other modules here
