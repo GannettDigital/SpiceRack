@@ -1,6 +1,6 @@
 {
   "name": "hot-sauce",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Api Component to SpiceRack responsible for managing Scheduled Jobs in CouchBase",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "express": "^4.13.1",
     "express-validator": "^2.13.0",
     "method-override": "^2.3.4",
-    "salt-pepper": "^1.1.1",
+    "salt-pepper": "^1.1.9",
     "string-format": "^0.5.0"
   },
   "devDependencies": {
