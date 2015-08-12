@@ -4,7 +4,7 @@ SDK to add scheduling mechanisms backed by Hot Sauce API
 
 [![Build Status](https://travis-ci.org/GannettDigital/SpiceRack.svg?branch=master)](https://travis-ci.org/GannettDigital/SpiceRack)
 [![Coverage Status](https://coveralls.io/repos/GannettDigital/SpiceRack/badge.svg?branch=master&service=github)](https://coveralls.io/github/GannettDigital/SpiceRack?branch=master)
-[![NPM](https://nodei.co/npm/ajwain.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/ajwain/)
+[![npm](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/hot-sauce)
 
 ## Installation
 ```npm install ajwain```
