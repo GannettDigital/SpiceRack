@@ -9,7 +9,7 @@ Wrapper around the winston logger to provide more context on the log message suc
 
 [![Build Status](https://travis-ci.org/GannettDigital/SpiceRack.svg?branch=master)](https://travis-ci.org/GannettDigital/SpiceRack)
 [![Coverage Status](https://coveralls.io/repos/GannettDigital/SpiceRack/badge.svg?branch=master&service=github)](https://coveralls.io/github/GannettDigital/SpiceRack?branch=master)
-[![NPM](https://nodei.co/npm/salt-pepper.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/salt-pepper/)
+[![npm](https://img.shields.io/npm/v/salt-pepper.svg)](https://www.npmjs.com/package/salt-pepper)
 
 ## Installation
 ```npm install salt-pepper```
