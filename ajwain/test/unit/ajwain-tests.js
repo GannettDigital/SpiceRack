@@ -1,4 +1,4 @@
-describe('ajwain tests', function() {
+describe('ajwain: initialize tests', function() {
     var mockery = require('mockery');
     var expect = require('chai').expect;
     var assert = require('assert');
@@ -13,6 +13,28 @@ describe('ajwain tests', function() {
     beforeEach(function() {
         mockery.deregisterAll();
         mockery.resetCache();
+    });
+
+    it('should not error when shutdown is called before job handler registration', function(done){
+        var Ajwain = require('../../src/ajwain.js');
+        var ajwain = new Ajwain({
+            pollInterval: 200,
+            logger: {},
+            couchbase: {
+                bucket:{
+                    name: 'name',
+                    password: '123'
+                },
+                cluster:['http://host:8091']
+            }
+
+        });
+
+        var doIt = function() {
+            ajwain.shutdown();
+        };
+        expect(doIt).to.not.throw();
+        done();
     });
 
     it('should register a job-found listener on initialize', function(done){
