@@ -1,4 +1,4 @@
-describe('chives tests', function() {
+describe('chives: validation tests', function() {
     var mockery = require('mockery');
     var expect = require('chai').expect;
     var assert = require('assert');
@@ -91,7 +91,7 @@ describe('chives tests', function() {
             new Chives(config);
         };
 
-        expect(doIt).to.throw('generateInstances must be greater than 0');
+        expect(doIt).to.throw('generateInstances 0 or greater');
     });
 
     it('should throw error when pollInterval for unlockJobs is not specified', function() {
@@ -133,7 +133,7 @@ describe('chives tests', function() {
             new Chives(config);
         };
 
-        expect(doIt).to.throw('unlockJobs must be greater than 0');
+        expect(doIt).to.throw('unlockJobs 0 or greater');
     });
 
     it('should throw error when logger is not configured', function() {
@@ -231,7 +231,6 @@ describe('chives tests', function() {
         expect(doIt).throw('couchbase.bucket must be specified');
     });
 
-
     it('should not throw error when config is valid', function() {
         var Chives = require('../../index.js');
         var doIt = function() {
@@ -252,60 +251,6 @@ describe('chives tests', function() {
         };
 
         expect(doIt).to.not.throw(Error);
-    });
-
-    it('should emit UNLOCK_LOCKED_JOBS event on start', function(done) {
-        var Chives = require('../../index.js');
-
-        var chives = new Chives({
-            pollIntervals: {
-                generateInstances: 1,
-                unlockJobs: 1
-            },
-            logger: {},
-            couchbase: {
-                bucket: {
-                    name: 'x',
-                    password: 'y'
-                },
-                cluster: []
-            }
-        });
-
-        chives.on('unlock-locked-jobs', function() {
-            assert.ok(true);
-            done();
-            chives.stop();
-        });
-
-        chives.start();
-    });
-
-    it('should emit GENERATE_INSTANCES event on start', function(done) {
-        var Chives = require('../../index.js');
-
-        var chives = new Chives({
-            pollIntervals: {
-                generateInstances: 1,
-                unlockJobs: 1
-            },
-            logger: {},
-            couchbase: {
-                bucket: {
-                    name: 'x',
-                    password: 'y'
-                },
-                cluster: []
-            }
-        });
-
-        chives.on('generate-instances', function() {
-            assert.ok(true);
-            done();
-            chives.stop();
-        });
-
-        chives.start();
     });
 
     after(function() {
