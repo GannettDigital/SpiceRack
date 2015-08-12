@@ -37,8 +37,8 @@ var config = {
         file: {enabled: false, options: {level: 'debug', filename: "chives.log"}}
     },
     pollIntervals:{
-        generateInstances: 50000,
-        unlockJobs: 2000
+        generateInstances: 50000,   // use 0 to turn off polling for this job
+        unlockJobs: 2000            // use 0 to turn off polling for this job
     }
 };
 
