@@ -12,7 +12,7 @@ env:
   - TEST_DIR=hot-sauce
   - TEST_DIR=ajwain
   - TEST_DIR=salt-pepper
-  #- TEST_DIR=chives
+  - TEST_DIR=chives
 
 script:
   - cd $TEST_DIR && npm install && npm run coveralls

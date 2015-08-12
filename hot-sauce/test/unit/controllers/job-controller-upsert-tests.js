@@ -42,7 +42,11 @@ describe('job-controller: upsert tests', function(){
                 return {
                     isObject: function(){},
                     empty: function(){},
-                    notEmpty: function(){}
+                    notEmpty: function(){
+                        return {
+                            isInt: function(){}
+                        }
+                    }
                 }
             },
             validationErrors: function(){
@@ -88,7 +92,11 @@ describe('job-controller: upsert tests', function(){
                 return {
                     isObject: function(){},
                     empty: function(){},
-                    notEmpty: function(){}
+                    notEmpty: function(){
+                        return {
+                            isInt: function(){}
+                        }
+                    }
                 }
             },
             validationErrors: function(){
@@ -129,7 +137,11 @@ describe('job-controller: upsert tests', function(){
                 return {
                     isObject: function(){},
                     empty: function(){},
-                    notEmpty: function(){}
+                    notEmpty: function(){
+                        return {
+                            isInt: function(){}
+                        }
+                    }
                 }
             },
             validationErrors: function(){

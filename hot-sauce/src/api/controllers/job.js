@@ -92,6 +92,7 @@ module.exports = (function () {
             req.checkBody('schedule', 'is required').notEmpty();
             req.checkBody('schedule', 'must be an object').isObject();
             req.checkBody('schedule.cron', 'is required').notEmpty();
+            req.checkBody('schedule.expirationThreshold', 'is required').notEmpty().isInt();
             req.checkBody('locking', 'may not be updated through the api').empty();
 
             var validationErrors = req.validationErrors();
