@@ -42,6 +42,7 @@ describe('job-controller: upsert tests', function(){
                 return {
                     isObject: function(){},
                     empty: function(){},
+                    isBoolean: function(){},
                     notEmpty: function(){
                         return {
                             isInt: function(){}
@@ -92,6 +93,7 @@ describe('job-controller: upsert tests', function(){
                 return {
                     isObject: function(){},
                     empty: function(){},
+                    isBoolean: function(){},
                     notEmpty: function(){
                         return {
                             isInt: function(){}
@@ -137,6 +139,7 @@ describe('job-controller: upsert tests', function(){
                 return {
                     isObject: function(){},
                     empty: function(){},
+                    isBoolean: function(){},
                     notEmpty: function(){
                         return {
                             isInt: function(){}

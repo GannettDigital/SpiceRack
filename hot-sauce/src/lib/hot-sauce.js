@@ -30,6 +30,9 @@ module.exports = (function() {
                 },
                 isObject: function(value) {
                     return value && value instanceof Object;
+                },
+                isBoolean: function(value) {
+                    return typeof(value) === 'boolean';
                 }
             }
         }));

@@ -86,6 +86,8 @@ module.exports = (function () {
             req.checkBody('id', 'is required').notEmpty();
             req.checkBody('name', 'is required').notEmpty();
             req.checkBody('code', 'is required').notEmpty();
+            req.checkBody('isActive', 'is required').notEmpty();
+            req.checkBody('isActive', 'must be a boolean').isBoolean();
             req.checkBody('description', 'is required').notEmpty();
             req.checkBody('jobData', 'is required').notEmpty();
             req.checkBody('jobData', 'must be an object').isObject();
