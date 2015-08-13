@@ -115,15 +115,17 @@ function (doc, meta) {
 #### GetJobIfAvailable
 ```javascript
 function (doc, meta) {
-  if(doc.locking && doc.locking.locked != true){
-    if(doc.schedule && doc.schedule.future_instances.length > 0){
-    //only find unlocked jobs
-      var instances = doc.schedule.future_instances;
-      for(var i=0; i<instances.length; i++){
-        var key = dateToArray(instances[i]);
-	emit(key, doc.code);
-      }
-    } 
+  if(doc.isActive === null || doc.isActive === undefined || doc.isActive === true){
+    if(doc.locking && doc.locking.locked != true){
+      if(doc.schedule && doc.schedule.future_instances.length > 0){
+      //only find unlocked jobs
+        var instances = doc.schedule.future_instances;
+        for(var i=0; i<instances.length; i++){
+          var key = dateToArray(instances[i]);
+      emit(key, doc.code);
+        }
+      } 
+    }
   }
 }
 ```
@@ -149,6 +151,7 @@ Index of all jobs stored in couchbase
     "code": "code_52",
     "description": "desc",
     "jobData": {},
+    "isActive": true,
     "schedule": {
         "expirationThreshold": 20000,
         "cron": "*/12 52 * * * *",
@@ -181,6 +184,7 @@ Create/Upload a job
 {
     "id": "52",
     "name": "job",
+    "isActive": false,
     "code": "every52nd",
     "description": "desc",
     "jobData": {},
