@@ -20,8 +20,8 @@ npm run cover
 
 ## Usage
 ```javascript
-var Chives = require('./chives/index.js');
-var Logger = require('./salt-pepper/index.js').Logger;
+var Chives = require('chives');
+var Logger = require('salt-pepper').Logger;
 var os = require('os');
 
 var config = {
