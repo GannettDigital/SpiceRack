@@ -23,11 +23,12 @@ module.exports = (function () {
             HANDLE_RESPONSE: 'handle-response'
         };
 
+        var _bucket = getOpenedBucket();
+
         manager.getAllJobs = function(afterGet) {
             //todo: limit, skip
             var query = ViewQuery.from('jobs', 'GetAllJobs');
-            var bucket = getOpenedBucket();
-            bucket.query(query, function(err, results){
+            _bucket.query(query, function(err, results){
                 var rows = null;
                 if(!err){
                     rows = results.map(function(row){
@@ -39,36 +40,32 @@ module.exports = (function () {
         };
 
         manager.findAvailableJob = function(jobCodes, caller, afterGet) {
-            var bucket = getOpenedBucket();
-            _eventHandler.sendEvent(_events.QUERY_AVAILABLE_JOBS, bucket, jobCodes, caller, afterGet);
+            _eventHandler.sendEvent(_events.QUERY_AVAILABLE_JOBS, jobCodes, caller, afterGet);
         };
 
         manager.getJob = function(id, afterGet) {
             if(!id) throw new Error('id is required to get a specific job');
             if(!afterGet) throw new Error('afterGet is required');
             if(!(afterGet instanceof Function)) throw new Error('afterGet must be a function');
-            var bucket = getOpenedBucket();
 
-            bucket.get(id, function(err, result) {
+            _bucket.get(id, function(err, result) {
                 afterGet(err, result ? result.value : null);
             });
         };
 
         manager.save = function(job, afterSave){
             var jobToSave = addMetadataToJob(job);
-            var bucket = getOpenedBucket();
-            bucket.upsert(job.id, jobToSave, function(err){
+            _bucket.upsert(job.id, jobToSave, function(err){
                 afterSave(err, err ? null : jobToSave);
             });
         };
 
         manager.unlock = function(id, caller, afterUnlock){
-            var bucket = getOpenedBucket();
-            bucket.getAndLock(id, {lockTime: 30}, function(err, result){
+            _bucket.getAndLock(id, {lockTime: 30}, function(err, result){
                if(err){
                    _eventHandler.sendEvent(_events.HANDLE_RESPONSE, afterUnlock, err);
                } else {
-                   _eventHandler.sendEvent(_events.UNLOCK_JOB, result, bucket, caller, afterUnlock);
+                   _eventHandler.sendEvent(_events.UNLOCK_JOB, result, caller, afterUnlock);
                }
             });
         };
@@ -80,8 +77,7 @@ module.exports = (function () {
             var query = ViewQuery
                 .from('jobs', 'GetJobsMaintenance')
                 .range(startKey, endKey);
-            var bucket = getOpenedBucket();
-            bucket.query(query, function(err, results){
+            _bucket.query(query, function(err, results){
                 var rows = null;
                 if(!err){
                     rows = results.map(function(row){
@@ -103,8 +99,7 @@ module.exports = (function () {
             var query = ViewQuery
                 .from('jobs', 'GetJobsMaintenance')
                 .range(startKey, endKey);
-            var bucket = getOpenedBucket();
-            bucket.query(query, function(err, results) {
+            _bucket.query(query, function(err, results) {
                 var rows = null;
                 if(!err) {
                     rows = results.map(function(row){
@@ -126,7 +121,7 @@ module.exports = (function () {
             });
 
             return bucket;
-        };
+        }
 
         function addMetadataToJob(job){
             job.locking = job.locking || {
@@ -151,7 +146,7 @@ module.exports = (function () {
             return job;
         }
 
-        _eventHandler.watchEvent(_events.QUERY_AVAILABLE_JOBS, function(bucket, jobCodes, caller, afterGet){
+        _eventHandler.watchEvent(_events.QUERY_AVAILABLE_JOBS, function(jobCodes, caller, afterGet){
             var now = new Date();
             now.setMilliseconds(0);
 
@@ -169,13 +164,12 @@ module.exports = (function () {
                 .limit(100)
                 .stale(ViewQuery.Update.BEFORE);
 
-            bucket.query(query, function(err, results) {
+            _bucket.query(query, function(err, results) {
                 if(!err) {
                     var options = {
                         results: results,
                         jobCodes: jobCodes,
                         caller: caller,
-                        bucket: bucket,
                         callback: afterGet,
                         baseDate: now
                     };
@@ -206,7 +200,7 @@ module.exports = (function () {
                     return;
                 }
 
-                options.bucket.getAndLock(jobId, {lockTime: 30}, function(err, result){
+                _bucket.getAndLock(jobId, {lockTime: 30}, function(err, result){
                     if(err){
                         _eventHandler.sendEvent(_events.HANDLE_RESPONSE, options.callback, err);
                     } else {
@@ -222,7 +216,6 @@ module.exports = (function () {
 
         _eventHandler.watchEvent(_events.LOCK_JOB, function(options){
             var result = options.result;
-            var bucket = options.bucket;
             //lock info to be used to unlock the job
             var cas = result.cas;
             var job = result.value;
@@ -236,8 +229,8 @@ module.exports = (function () {
             job.locking = lockInfo;
             job.lastModified = new Date();
 
-            bucket.upsert(job.id, job, {cas: cas}, function(err){
-                bucket.unlock(job.id, cas, function(){
+            _bucket.upsert(job.id, job, {cas: cas}, function(err){
+                _bucket.unlock(job.id, cas, function(){
                     for(var i=0; i<job.schedule.future_instances.length; i++){
                         var date = new Date(job.schedule.future_instances[i]);
 
@@ -251,7 +244,7 @@ module.exports = (function () {
             });
         });
 
-        _eventHandler.watchEvent(_events.UNLOCK_JOB, function(result, bucket, caller, afterUnlock){
+        _eventHandler.watchEvent(_events.UNLOCK_JOB, function(result, caller, afterUnlock){
             var cas = result.cas;
             var job = result.value;
 
@@ -268,8 +261,8 @@ module.exports = (function () {
             //re-generate occurrences
             addMetadataToJob(job);
 
-            bucket.upsert(job.id, job, {cas: cas}, function(err){
-                bucket.unlock(job.id, cas, function(){
+            _bucket.upsert(job.id, job, {cas: cas}, function(err){
+                _bucket.unlock(job.id, cas, function(){
                     _eventHandler.sendEvent(_events.HANDLE_RESPONSE, afterUnlock, err, job);
                 });
             });

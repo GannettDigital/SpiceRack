@@ -53,9 +53,8 @@ describe('job-manager: getAvailableJob tests', function() {
         var mockHandler = function(){
                 var self = {};
 
-                self.sendEvent = function(event, bucket, jobCodes, afterGetCallback){
+                self.sendEvent = function(event, jobCodes, afterGetCallback){
                     expect(event).to.eql('query-available-jobs');
-                    expect(bucket).to.not.be.null;
                     expect(jobCodes).to.eql(jobCodes);
                     expect(afterGetCallback).to.be.a('function').and.eql(afterGet);
                     done();
