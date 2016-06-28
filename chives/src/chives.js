@@ -130,7 +130,7 @@ module.exports = (function() {
                         if(err){
                             _logger.error('Error unlocking job', err);
                         } else {
-                            _logger.debug(format('Job: {0} forcefully unlocked. ', job.id));
+                            _logger.debug(format('Job: {0} forcefully unlocked.', job.id));
                         }
                     });
                 } else {
@@ -156,6 +156,11 @@ module.exports = (function() {
                         needsInstances = false;
                         break;
                     }
+                }
+
+                if (job.schedule.triggerScheduledDate){
+                    //chives should not generate new instances for single-execution trigger jobs
+                    needsInstances = false;
                 }
 
                 if(needsInstances) {

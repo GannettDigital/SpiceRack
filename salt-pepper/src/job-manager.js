@@ -136,12 +136,13 @@ module.exports = (function () {
                 currentDate: base
             };
 
-            var instances = _scheduleManager.generateFutureInstances(job.schedule.cron, options);
-            if(instances.length == 0){
+            if (job.schedule.triggerScheduledDate)
+                job.schedule.future_instances = [job.schedule.triggerScheduledDate];
+            else
+                job.schedule.future_instances = _scheduleManager.generateFutureInstances(job.schedule.cron, options);
+            if(job.schedule.future_instances.length == 0){
                 //Should fail loudly or something
                 _logger.warn(format('{0} generated 0 occurrences.', job.schedule.cron));
-            } else {
-                job.schedule.future_instances = instances;
             }
             return job;
         }
@@ -149,20 +150,37 @@ module.exports = (function () {
         _eventHandler.watchEvent(_events.QUERY_AVAILABLE_JOBS, function(jobCodes, caller, afterGet){
             var now = new Date();
             now.setMilliseconds(0);
-
-            var end = new Date(now);
-            end.setUTCSeconds(now.getUTCSeconds() + 5);
-            //margin of error is 5s
-
-            //because javascript getMonth() is 0 based, +1 the month
-            var startKey = [now.getUTCFullYear(), now.getUTCMonth()+1, now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()];
-            var endKey =   [end.getUTCFullYear(), end.getUTCMonth()+1, end.getUTCDate(), end.getUTCHours(), end.getUTCMinutes(), end.getUTCSeconds()];
+            var startTime = new Date(now);
+            var endTime = new Date(now);
+            var startKey, endKey;
 
             var query = ViewQuery
                 .from('jobs', 'GetJobIfAvailable')
-                .range(startKey, endKey)
-                .limit(100)
                 .stale(ViewQuery.Update.BEFORE);
+
+            if (!config.query) {
+                //default behavior for backward compatibility
+                //margin of error is 5s
+                endTime = endTime.getUTCSeconds() + 5;
+                startKey = [startTime.getUTCFullYear(), startTime.getUTCMonth()+1, startTime.getUTCDate(), startTime.getUTCHours(), startTime.getUTCMinutes(), startTime.getUTCSeconds()];
+                endKey =   [endTime.getUTCFullYear(), endTime.getUTCMonth()+1, endTime.getUTCDate(), endTime.getUTCHours(), endTime.getUTCMinutes(), endTime.getUTCSeconds()];
+                query = query
+                    .range(startKey, endKey)
+                    .limit(100);
+            }
+            else
+            {
+                if (config.query.range) {
+                    startTime = endTime.getUTCSeconds() + (config.query.range.startOffset || 0);
+                    endTime = endTime.getUTCSeconds() + (config.query.range.endOffset || 5);
+                    startKey = [startTime.getUTCFullYear(), startTime.getUTCMonth()+1, startTime.getUTCDate(), startTime.getUTCHours(), startTime.getUTCMinutes(), startTime.getUTCSeconds()];
+                    endKey = [endTime.getUTCFullYear(), endTime.getUTCMonth()+1, endTime.getUTCDate(), endTime.getUTCHours(), endTime.getUTCMinutes(), endTime.getUTCSeconds()];
+                    query = query.range(startKey, endKey);
+                }
+                if (config.query.limit) {
+                    query = query.limit(config.query.limit);
+                }
+            }
 
             _bucket.query(query, function(err, results) {
                 if(!err) {
@@ -228,6 +246,10 @@ module.exports = (function () {
 
             job.locking = lockInfo;
             job.lastModified = new Date();
+
+            if (job.schedule.triggerScheduledDate) {
+                job.isActive = false;
+            }
 
             _bucket.upsert(job.id, job, {cas: cas}, function(err){
                 _bucket.unlock(job.id, cas, function(){

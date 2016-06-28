@@ -1,11 +1,6 @@
 language: node_js
 node_js:
-- '0.10'
-before_script:
-- npm install mocha
-- npm install -g istanbul
-- npm install coveralls
-- npm install mockery
+- '0.12'
 env:
 - TEST_DIR=hot-sauce
 - TEST_DIR=ajwain
