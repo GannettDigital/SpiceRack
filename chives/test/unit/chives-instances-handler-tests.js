@@ -13,6 +13,7 @@ describe('chives: instances handler tests', function() {
 
     beforeEach(function() {
         mockery.resetCache();
+        mockery.registerMock('./src/job-manager.js', function () { return {};});
     });
 
     afterEach(function() {

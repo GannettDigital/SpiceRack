@@ -50,7 +50,7 @@ describe('job-manager: getJob tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
         var doIt = function() {
             manager.getJob(null, function() {
@@ -92,7 +92,7 @@ describe('job-manager: getJob tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
         var doIt = function() {
             manager.getJob(null, function() {
@@ -134,7 +134,7 @@ describe('job-manager: getJob tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
         var doIt = function() {
             manager.getJob(1, null);
@@ -175,7 +175,7 @@ describe('job-manager: getJob tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
         var doIt = function() {
             manager.getJob(1, {});
@@ -219,7 +219,7 @@ describe('job-manager: getJob tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.getJob(1, function(err, result){
@@ -264,7 +264,7 @@ describe('job-manager: getJob tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.getJob(1, function(err, result){
