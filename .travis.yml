@@ -1,8 +1,8 @@
 language: node_js
 node_js:
-- '0.10'
+- '0.12'
 before_script:
-- npm install mocha
+- npm install -g mocha
 - npm install -g istanbul
 - npm install coveralls
 - npm install mockery
@@ -12,12 +12,11 @@ env:
 - TEST_DIR=salt-pepper
 - TEST_DIR=chives
 script:
-- cd $TEST_DIR && npm install && npm run coveralls
+- cd $TEST_DIR && npm install && npm run test && npm run coveralls
 deploy:
   provider: npm
   email: npm-publisher@dhutia.net
   api_key:
     secure: TFcSBTF5V8Dsh2gnUUQyDKeHuf+UaMzwIDlco6bNUYG/QOjlU0WbZePlHoPXBhP5P3DNlTmmX9xKG7EHHRSBhZcFLJQCpdig2V7bBUmd6nDDUvBa0KqcdXzr+RYW/FexWQE00cfUev9xl4ZYr5fpI0VIXPxBholIHMG5+SIAUA4nk91Ov8s66B6cxhyUDSd5rehKSQ/EzDqv7lzhtZbQuJQbTED0vCM19T0HYNja8j/2KgAb5/fjQMLz53QB5pEWwbbbJT59eomkfFUijw7mh8HIfj+Swi08aTJfgDixnFVAI41P4BFbg2ftJpZCDMfUeJxmM11NEgch5K0l5T6JGffsz9OhGN7+L8SIsJx2m0Vf3yp8/ssa2Rd6KgPFEW8Wd6KwcpxunfBbLgLYpZdSxQvAVT4qaSFGgwiPf5mm6vEqG54n0RQ8KJatxp3GqHgW2V69vkKdZY2NJEo5c+a1Zlk3KmkRUHneO1GezeV6ZAEugMXJUPranQbxYTjccMCOK4mGneMG/E8OkEd3ghG+U6FQAUxzAGxMA3Gp5BViLLVQYiG5+gn91OZE/BB4p1PNw63dPPRCYmfrEautc7LhHAvGyWp68yTcItdVjWifznTwwuSQVXlpfpVvvAho5jxDj4ENZo6/xMTnBRbBj3Nuugb0XLhy+2bnvHd3BMsDX+8=
   on:
-    branch: master
     tags: true
