@@ -24,10 +24,10 @@
     "spicerack"
   ],
   "devDependencies": {
-    "chai": "^3.2.0",
-    "coveralls": "^2.11.3",
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.12",
     "mocha": "^3.0.2",
-    "mockery": "^1.4.0"
+    "mockery": "^1.7.0"
   },
   "author": "Devansh Dhutia",
   "license": "MIT",
