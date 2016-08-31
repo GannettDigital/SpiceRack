@@ -66,7 +66,7 @@ describe('job-manager: save tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.save(jobToSave, function(err, result) {
@@ -137,7 +137,7 @@ describe('job-manager: save tests', function() {
         mockery.registerMock('./schedule-manager.js', mockScheduleManager);
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.save(jobToSave, function(err, result) {
@@ -189,7 +189,7 @@ describe('job-manager: save tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.save(jobToSave, function(err, result) {
@@ -244,7 +244,7 @@ describe('job-manager: save tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.save(jobToSave, function(err, result) {

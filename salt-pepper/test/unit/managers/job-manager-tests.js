@@ -19,7 +19,7 @@ describe('job-manager: tests', function() {
         mockery.deregisterAll();
     });
 
-    it('should log error when coucbase bucket returns error on connect', function(done){
+    it('should log error when couchbase bucket returns error on connect', function(done){
         var mockConfig = {
             couchbase: {
                 cluster: [],
@@ -44,14 +44,14 @@ describe('job-manager: tests', function() {
         };
         mockery.registerMock('./logger.js', mockLogger);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.getJob(1, function(){});
 
     });
 
-    it('should log info message when coucbase connects successfully', function(done){
+    it('should log info message when couchbase connects successfully', function(done){
         var mockConfig = {
             couchbase: {
                 cluster: [],
@@ -75,7 +75,7 @@ describe('job-manager: tests', function() {
         };
         mockery.registerMock('./logger.js', mockLogger);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.getJob(1, function(){});
@@ -137,7 +137,7 @@ describe('job-manager: tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.unlock(1, 'tester', function(){

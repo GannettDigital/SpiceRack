@@ -24,9 +24,9 @@ describe('schedule-manager: get instances tests', function(){
             }
         };
 
-        mockery.registerMock('./../lib/logger.js', mockLogger);
+        mockery.registerMock('./logger.js', mockLogger);
 
-        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
+        var ScheduleManager = require('../../../src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         //daily at midnight
@@ -67,8 +67,8 @@ describe('schedule-manager: get instances tests', function(){
             }
         };
 
-        mockery.registerMock('./../lib/logger.js', mockLogger);
-        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
+        mockery.registerMock('./logger.js', mockLogger);
+        var ScheduleManager = require('../../../src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         //without any bounds, the endDate is infinite
@@ -95,7 +95,7 @@ describe('schedule-manager: get instances tests', function(){
         mockery.registerMock('./logger.js', mockLogger);
         mockery.registerMock('cron-parser', mockParser);
 
-        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
+        var ScheduleManager = require('../../../src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         manager.generateFutureInstances('@hourly');
@@ -113,10 +113,10 @@ describe('schedule-manager: get instances tests', function(){
             parseExpression: function(){ throw new Error('oops');}
         };
 
-        mockery.registerMock('./../lib/logger.js', mockLogger);
+        mockery.registerMock('./logger.js', mockLogger);
         mockery.registerMock('cron-parser', mockParser);
 
-        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
+        var ScheduleManager = require('../../../src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         var results = manager.generateFutureInstances('@hourly');
@@ -131,9 +131,9 @@ describe('schedule-manager: get instances tests', function(){
             }
         };
 
-        mockery.registerMock('./../lib/logger.js', mockLogger);
+        mockery.registerMock('./logger.js', mockLogger);
 
-        var ScheduleManager = require('../../../../salt-pepper/src/schedule-manager.js');
+        var ScheduleManager = require('../../../src/schedule-manager.js');
         var manager = new ScheduleManager({logger:{}});
 
         var now = new Date();

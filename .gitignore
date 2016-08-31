@@ -28,6 +28,7 @@ node_modules
 
 #WebStorm excludes
 .idea/*
+*/.idea/*
 
 #local dev files
 hot-sauce*.js
