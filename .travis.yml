@@ -10,13 +10,7 @@ env:
 - TEST_DIR=hot-sauce
 - TEST_DIR=salt-pepper
 script:
-- pwd
-- cd $TEST_DIR
-- pwd
-- ls -la
-- npm install --loglevel info
-- npm run test
-- npm run coveralls
+- cd $TEST_DIR && npm install && npm run test && npm run coveralls
 deploy:
   provider: npm
   email: npm-publisher@dhutia.net

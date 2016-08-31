@@ -15,6 +15,10 @@ describe('ajwain: index tests', function() {
         mockery.registerMock('./src/job-manager.js', function () { return {};});
     });
 
+    after(function() {
+        mockery.disable();
+    });
+
     it('should return the ajwain function on requiring index.js', function(){
         var Ajwain = require('../../index.js');
 

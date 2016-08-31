@@ -57,7 +57,7 @@ describe('job-manager: unlock tests', function() {
 
         mockery.registerMock('couchbase', mockCouchbase);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.unlock(1, 'tester', function(err, result) {
