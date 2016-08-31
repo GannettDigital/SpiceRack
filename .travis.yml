@@ -1,8 +1,6 @@
 language: node_js
 node_js:
 - '0.12.6'
-before_install:
-- npm install -g npm@latest
 before_script:
 - npm install -g mocha
 - npm install -g istanbul
@@ -15,7 +13,8 @@ script:
 - pwd
 - cd $TEST_DIR
 - pwd
-- npm install
+- ls -la
+- npm install --loglevel info
 - npm run test
 - npm run coveralls
 deploy:
