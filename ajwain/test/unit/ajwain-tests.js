@@ -1,44 +1,47 @@
+'use strict';
+
 describe('ajwain: initialize tests', function() {
     var mockery = require('mockery');
     var expect = require('chai').expect;
     var assert = require('assert');
 
-    before(function() {
+    before(function () {
         mockery.enable({
             useCleanCache: true,
             warnOnUnregistered: false
         });
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         mockery.deregisterAll();
         mockery.resetCache();
+        mockery.registerMock('./src/job-manager.js', function () { return {};});
     });
 
-    it('should not error when shutdown is called before job handler registration', function(done){
+    it('should not error when shutdown is called before job handler registration', function (done) {
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 200,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
 
         });
 
-        var doIt = function() {
+        var doIt = function () {
             ajwain.shutdown();
         };
         expect(doIt).to.not.throw();
         done();
     });
 
-    it('should register a job-found listener on initialize', function(done){
-        var mockRequest = function(){};
+    it('should register a job-found listener on initialize', function (done) {
+        var mockRequest = function () {};
         mockery.registerMock('request', mockRequest);
 
         var Ajwain = require('../../src/ajwain.js');
@@ -46,11 +49,11 @@ describe('ajwain: initialize tests', function() {
             pollInterval: 200,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
 
         });
@@ -59,22 +62,22 @@ describe('ajwain: initialize tests', function() {
             jobCodes: ['one'],
             caller: 'tester'
         };
-        ajwain.registerJobHandler(options, function(){});
+        ajwain.registerJobHandler(options, function () {});
 
         expect(ajwain.listeners('job-found').length).to.eql(1);
         ajwain.shutdown();
         done();
     });
 
-    it('should emit a get-job event on register', function(done){
-        var mockRequest = function(){};
+    it('should emit a get-job event on register', function (done) {
+        var mockRequest = function () {};
         mockery.registerMock('request', mockRequest);
 
-        var mockEventHandler = function() {
+        var mockEventHandler = function () {
             return {
-                sendEvent: function(){},
-                watchEvent: function(eventType) {
-                    if(eventType === 'get-job'){
+                sendEvent: function () {},
+                watchEvent: function (eventType) {
+                    if (eventType === 'get-job') {
                         assert.ok(true);
                         done();
                     }
@@ -88,11 +91,11 @@ describe('ajwain: initialize tests', function() {
             pollInterval: 200,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
@@ -100,18 +103,17 @@ describe('ajwain: initialize tests', function() {
             jobCodes: ['one'],
             caller: 'tester'
         };
-        ajwain.registerJobHandler(options, function(){});
+        ajwain.registerJobHandler(options, function () {});
     });
 
-    it('should emit a job-complete event when completeJob method is called', function(done){
-        var mockRequest = function(){};
+    it('should emit a job-complete event when completeJob method is called', function (done) {
+        var mockRequest = function () {};
         mockery.registerMock('request', mockRequest);
 
-        var mockEventHandler =  function() {
+        var mockEventHandler = function () {
             return {
-                watchEvent: function() {
-                },
-                sendEvent: function(eventType) {
+                watchEvent: function () {},
+                sendEvent: function (eventType) {
                     expect(eventType).to.eql('job-complete');
                     done();
                 }
@@ -124,11 +126,11 @@ describe('ajwain: initialize tests', function() {
             pollInterval: 200,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
@@ -140,24 +142,23 @@ describe('ajwain: initialize tests', function() {
             id: 1
         };
         ajwain.completeJob(completedJob, callerOptions);
-
     });
 
-    it('should register a job-error handler when registerErrorHandler is called', function(done){
+    it('should register a job-error handler when registerErrorHandler is called', function (done) {
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 500,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
-        ajwain.registerErrorHandler(function(err){
+        ajwain.registerErrorHandler(function (err) {
             //do something
         });
 
@@ -167,22 +168,22 @@ describe('ajwain: initialize tests', function() {
 
     });
 
-    it('should trigger registered handler when a job is found', function(done){
-        var mockRequest = function(){};
+    it('should trigger registered handler when a job is found', function (done) {
+        var mockRequest = function () {};
         mockery.registerMock('request', mockRequest);
         var options = {
-            jobCodes: ['one'],
+            jobCodes: ['one','two'],
             caller: 'tester'
         };
 
         var foundJob = {
             id: 1,
-            code: options.jobCodes[0],
+            code: options.jobCodes[1],
             jobData: {}
         };
-        var mockJobManager = function(){
+        var mockJobManager = function () {
             return {
-                findAvailableJob: function(jobCodes, caller, afterGet){
+                findAvailableJob: function (jobCodes, caller, afterGet) {
                     afterGet(null, foundJob);
                 }
             }
@@ -195,34 +196,83 @@ describe('ajwain: initialize tests', function() {
             pollInterval: 200,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
-        ajwain.registerJobHandler(options, function(job){
+        ajwain.registerJobHandler(options, function (job) {
             expect(foundJob.id).to.eql(job.id);
             ajwain.shutdown();
             done();
         });
     });
 
-    it('should throw error when pollInterval is not configured', function(){
+    it('should not trigger registered handler when job.code is not in options.jobCodes', function (done) {
+        var jobHandled = false;
+        var mockRequest = function () {};
+        mockery.registerMock('request', mockRequest);
+        var options = {
+            jobCodes: ['one','two'],
+            caller: 'tester'
+        };
+
+        var foundJob = {
+            id: 1,
+            code: 'not a match',
+            jobData: {}
+        };
+        var mockJobManager = function () {
+            return {
+                findAvailableJob: function (jobCodes, caller, afterGet) {
+                    if (!jobHandled) {
+                        afterGet(null, foundJob);
+                        jobHandled = true;
+                    } else {
+                        ajwain.shutdown();
+                        done();
+                    }
+                }
+            }
+        };
+        //mock just the job manager. this is how its called from within salt-pepper
+        mockery.registerMock('./src/job-manager.js', mockJobManager);
+
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
-            new Ajwain({
-            });
+        var ajwain = new Ajwain({
+            pollInterval: 200,
+            logger: {},
+            couchbase: {
+                bucket: {
+                    name: 'name',
+                    password: '123'
+                },
+                cluster: ['http://host:8091']
+            }
+        });
+
+        ajwain.registerJobHandler(options, function (job) {
+            assert.ok(false, 'handler is not for this job type');
+            ajwain.shutdown();
+            done();
+        });
+    });
+
+    it('should throw error when pollInterval is not configured', function () {
+        var Ajwain = require('../../src/ajwain.js');
+        var doIt = function () {
+            new Ajwain({});
         };
 
         expect(doIt).throw('pollInterval must be specified');
     });
 
-    it('should throw error when pollInterval is not a number', function(){
+    it('should throw error when pollInterval is not a number', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: 'nan'
             });
@@ -231,9 +281,9 @@ describe('ajwain: initialize tests', function() {
         expect(doIt).throw('pollInterval must be a number');
     });
 
-    it('should throw error when pollInterval is not a positive number', function(){
+    it('should throw error when pollInterval is not a positive number', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: -10
             });
@@ -242,9 +292,9 @@ describe('ajwain: initialize tests', function() {
         expect(doIt).throw('pollInterval must be greater than 0');
     });
 
-    it('should throw error when logger is not configured', function(){
+    it('should throw error when logger is not configured', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: 1
             });
@@ -253,9 +303,9 @@ describe('ajwain: initialize tests', function() {
         expect(doIt).throw('logger must be configured');
     });
 
-    it('should throw error when logger is not an object', function(){
+    it('should throw error when logger is not an object', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: 1,
                 logger: 'not an object'
@@ -265,9 +315,9 @@ describe('ajwain: initialize tests', function() {
         expect(doIt).throw('logger must be an object');
     });
 
-    it('should throw error when couchbase is not configured', function(){
+    it('should throw error when couchbase is not configured', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
@@ -277,36 +327,35 @@ describe('ajwain: initialize tests', function() {
         expect(doIt).throw('couchbase must be specified');
     });
 
-    it('should throw error when couchbase.cluster is not configured', function(){
+    it('should throw error when couchbase.cluster is not configured', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
-                couchbase:{
-                }
+                couchbase: {}
             });
         };
 
         expect(doIt).throw('couchbase.cluster must be specified');
     });
 
-    it('should throw error when config is not an object', function(){
+    it('should throw error when config is not an object', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain('text');
         };
 
         expect(doIt).throw('config must be an object');
     });
 
-    it('should throw error when couchbase.bucket is not an specified', function(){
+    it('should throw error when couchbase.bucket is not an specified', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
-                couchbase:{
+                couchbase: {
                     cluster: []
                 }
             });
@@ -315,95 +364,95 @@ describe('ajwain: initialize tests', function() {
         expect(doIt).throw('couchbase.bucket must be specified');
     });
 
-    it('should throw error when couchbase is not an object', function(){
+    it('should throw error when couchbase is not an object', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain({
                 pollInterval: 1,
                 logger: {},
-                couchbase:'test'
+                couchbase: 'test'
             });
         };
 
         expect(doIt).throw('couchbase must be an object');
     });
 
-    it('should throw error when config is not passed in', function(){
+    it('should throw error when config is not passed in', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain();
         };
 
         expect(doIt).throw('config must be specified');
     });
 
-    it('should throw error when config is not an object', function(){
+    it('should throw error when config is not an object', function () {
         var Ajwain = require('../../src/ajwain.js');
-        var doIt = function(){
+        var doIt = function () {
             new Ajwain('text');
         };
 
         expect(doIt).throw('config must be an object');
     });
 
-    it('should throw error when options.caller is not set', function(done){
+    it('should throw error when options.caller is not set', function (done) {
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
         var options = {};
-        var doIt = function(){
-            ajwain.registerJobHandler(options, function(job){});
+        var doIt = function () {
+            ajwain.registerJobHandler(options, function (job) {});
         };
 
         expect(doIt).to.throw('caller must be specified in options');
         done();
     });
 
-    it('should throw error when options.jobCodes is not set', function(){
+    it('should throw error when options.jobCodes is not set', function () {
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
         var options = {
             caller: 'tester'
         };
-        var doIt = function(){
-            ajwain.registerJobHandler(options, function(job){});
+        var doIt = function () {
+            ajwain.registerJobHandler(options, function (job) {});
         };
 
         expect(doIt).to.throw('jobCodes must be specified in options');
     });
 
-    it('should throw error when options.caller is not an array', function(){
+    it('should throw error when options.caller is not an array', function () {
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
@@ -411,24 +460,24 @@ describe('ajwain: initialize tests', function() {
             caller: 'tester',
             jobCodes: 'test'
         };
-        var doIt = function(){
-            ajwain.registerJobHandler(options, function(job){});
+        var doIt = function () {
+            ajwain.registerJobHandler(options, function (job) {});
         };
 
         expect(doIt).to.throw('jobCodes must be an array');
     });
 
-    it('should throw error when options.jobCodes is empty', function(){
+    it('should throw error when options.jobCodes is empty', function () {
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
@@ -436,24 +485,24 @@ describe('ajwain: initialize tests', function() {
             caller: 'tester',
             jobCodes: []
         };
-        var doIt = function(){
-            ajwain.registerJobHandler(options, function(job){});
+        var doIt = function () {
+            ajwain.registerJobHandler(options, function (job) {});
         };
 
         expect(doIt).to.throw('at least one jobCode must be specified');
     });
 
-    it('should throw error when handler is not a function', function(){
+    it('should throw error when handler is not a function', function () {
         var Ajwain = require('../../src/ajwain.js');
         var ajwain = new Ajwain({
             pollInterval: 1,
             logger: {},
             couchbase: {
-                bucket:{
+                bucket: {
                     name: 'name',
                     password: '123'
                 },
-                cluster:['http://host:8091']
+                cluster: ['http://host:8091']
             }
         });
 
@@ -461,14 +510,14 @@ describe('ajwain: initialize tests', function() {
             caller: 'tester',
             jobCodes: ['one']
         };
-        var doIt = function(){
+        var doIt = function () {
             ajwain.registerJobHandler(options, 'not a function');
         };
 
         expect(doIt).to.throw('handler must be a function');
     });
 
-    after(function() {
+    after(function () {
         mockery.disable();
     });
 });

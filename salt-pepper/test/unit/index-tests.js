@@ -1,6 +1,24 @@
 describe('index: init tests', function() {
     var assert = require('assert');
+    var mockery = require('mockery');
     var expect = require('chai').expect;
+
+    before(function () {
+        mockery.enable({
+            useCleanCache: true,
+            warnOnUnregistered: false
+        });
+    });
+
+    beforeEach(function () {
+        mockery.deregisterAll();
+        mockery.resetCache();
+        mockery.registerMock('./src/job-manager.js', function () { return {};});
+    });
+
+    after(function() {
+        mockery.disable();
+    });
 
     it('should set Logger property in exports on require index.js', function() {
         var app = require('../../index.js');
