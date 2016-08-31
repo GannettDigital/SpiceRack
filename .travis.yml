@@ -14,6 +14,7 @@ env:
 script:
 - pwd
 - cd $TEST_DIR
+- pwd
 - npm install
 - npm run test
 - npm run coveralls
