@@ -6,14 +6,13 @@ before_install:
 before_script:
 - npm install -g mocha
 - npm install -g istanbul
-- npm install coveralls
-- npm install mockery
 env:
 - TEST_DIR=ajwain
 - TEST_DIR=chives
 - TEST_DIR=hot-sauce
 - TEST_DIR=salt-pepper
 script:
+- pwd
 - cd $TEST_DIR
 - npm install
 - npm run test
