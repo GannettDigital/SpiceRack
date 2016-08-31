@@ -75,7 +75,7 @@ describe('job-manager: getAvailableJob tests', function() {
         mockery.registerMock('./event-handler.js', mockHandler);
         mockery.registerMock('./logger.js', mockLogger);
 
-        var JobManager = require('../../../../salt-pepper/src/job-manager.js');
+        var JobManager = require('../../../src/job-manager.js');
         var manager = new JobManager(mockConfig);
 
         manager.findAvailableJob(expectedJobCodes, afterGet);

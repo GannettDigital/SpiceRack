@@ -5,6 +5,7 @@ module.exports = (function(){
     var Logger = require('salt-pepper').Logger;
     var JobManager = require('salt-pepper').JobManager;
     var EventHandler = require('salt-pepper').EventHandler;
+    var _ = require('lodash');
 
     var events = {
         JOB_FOUND: 'job-found',
@@ -16,21 +17,28 @@ module.exports = (function(){
     var Ajwain = function(config){
         validateConfig(config);
         var self = this;
-        var _interval = null;
+        var _interval = false;
 
         var _jobManager = new JobManager(config);
         var _eventHandler = new EventHandler(config);
         var _logger = new Logger(config.logger);
 
-        self.registerJobHandler = function(options, fnJobHandler){
+        self.registerJobHandler = function(options, fnJobHandler) {
             validateRegisterParameters(options, fnJobHandler);
-            _eventHandler.watchEvent(events.JOB_FOUND, function(job) {
-                fnJobHandler(job);
+            _eventHandler.watchEvent(events.JOB_FOUND, function (job) {
+                if (_.includes(options.jobCodes, job.code)) {
+                    _logger.info(format('Job code <{0}> handled here [{1}]', job.code, options.jobCodes));
+                    fnJobHandler(job);
+                } else {
+                    _logger.info(format('Job code <{0}> NOT handled here [{1}]', job.code, options.jobCodes));
+                }
             });
 
-            _interval = setInterval(function(){
-                _eventHandler.sendEvent(events.GET_JOB, options);
-            }, config.pollInterval);
+            if (!_interval) {
+                _interval = setInterval(function () {
+                    _eventHandler.sendEvent(events.GET_JOB, options);
+                }, config.pollInterval);
+            }
         };
 
         self.registerErrorHandler = function(fnErrorHandler){
@@ -46,6 +54,7 @@ module.exports = (function(){
         self.shutdown = function(){
             if(!_interval) return;
             clearInterval(_interval);
+            _interval = false;
         };
 
         //for test purposes only

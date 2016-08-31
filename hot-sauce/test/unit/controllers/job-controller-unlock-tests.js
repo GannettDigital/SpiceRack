@@ -166,7 +166,7 @@ describe('job-controller: unlock tests', function(){
         });
     });
 
-    it('should call next with err when unlock error occurfs', function(done){
+    it('should call next with err when unlock error occurs', function(done){
         var mockSaltPepper = {
             JobManager: function() {
                 return {
