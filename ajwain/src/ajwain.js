@@ -18,6 +18,8 @@ module.exports = (function(){
         validateConfig(config);
         var self = this;
         var _interval = false;
+        var _jobCodes = [];
+        var _caller = undefined;
 
         var _jobManager = new JobManager(config);
         var _eventHandler = new EventHandler(config);
@@ -34,9 +36,18 @@ module.exports = (function(){
                 }
             });
 
+            options.jobCodes.forEach(function (c) {
+                _jobCodes.push(c);
+            });
+            _caller = options.caller;
+
             if (!_interval) {
                 _interval = setInterval(function () {
-                    _eventHandler.sendEvent(events.GET_JOB, options);
+                    var getJobOptions = {
+                        jobCodes: _jobCodes,
+                        caller: _caller
+                    };
+                    _eventHandler.sendEvent(events.GET_JOB, getJobOptions);
                 }, config.pollInterval);
             }
         };
@@ -55,6 +66,7 @@ module.exports = (function(){
             if(!_interval) return;
             clearInterval(_interval);
             _interval = false;
+            _jobCodes = [];
         };
 
         //for test purposes only
